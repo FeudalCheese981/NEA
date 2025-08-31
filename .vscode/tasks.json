@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "src/main.cpp",
+                "src/glad.c",
+                "src/camera.cpp",
+                "src/shader.cpp",
+                "src/VBO.cpp",
+                "src/VAO.cpp",
+                "src/EBO.cpp",
+                "src/mesh.cpp",
+                "src/orbit.cpp",
+                "src/object.cpp",
+                "src/sphere.cpp",
+                "src/grid.cpp",
+                "src/light.cpp",
+                "-o",
+                "build/app.exe",
+                "-Iinclude",
+                "-Llib",
+                "-lglfw3dll",
+                "-lopengl32",
+                "-lgdi32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "copy-shaders",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c", "xcopy src\\shaders build\\shaders /E /I /Y"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build-and-copy",
+            "dependsOn": [
+                "build",
+                "copy-shaders"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

@@ -1,0 +1,204 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+#include "orbit.hpp"
+#include "sphere.hpp"
+#include "light.hpp"
+#include "grid.hpp"
+
+// GLFW & window settings
+const unsigned int OPENGL_VERSION_MAJOR = 4;
+const unsigned int OPENGL_VERSION_MINOR = 6;
+const unsigned int SCREEN_WIDTH = 720;
+const unsigned int SCREEN_HEIGHT = 720;
+const unsigned int MSAA_SAMPLES = 16;
+const unsigned int SEGMENT_COUNT = 1024;
+
+int windowXPos, windowYPos;
+int windowWidth, windowHeight;
+bool fullscreen = false;
+
+Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	if (width && height)
+	{
+		glViewport(0, 0, width, height);
+		camera.width = width;
+		camera.height = height;
+	}
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		if (!fullscreen)
+		{
+			glfwGetWindowPos(window, &windowXPos, &windowYPos);
+			glfwGetWindowSize(window, &windowWidth, &windowHeight);
+			glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+			fullscreen = true;
+		}
+		else
+		{
+			glfwSetWindowMonitor(window, NULL, windowXPos, windowYPos, windowWidth, windowHeight, GLFW_DONT_CARE);
+			fullscreen = false;
+		}
+	}
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		camera.ChangeMode();
+	}
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		camera.ResetCamera();
+	}
+}
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	camera.ScrollInput(yOffset);
+}
+
+int main()
+{
+	glfwInit();
+
+	// GLFW hints
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLES);
+
+	// GLFW window
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "NEA OpenGL", NULL, NULL);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// glad
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize OpenGL context";
+		glfwTerminate();
+		return -1;
+	}
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// shader
+	Shader shaderProgram = Shader("shaders\\line.vert", "shaders\\line.frag");
+	Shader lightShader = Shader("shaders\\light.vert", "shaders\\light.frag");
+	Shader objectShader = Shader("shaders\\object.vert", "shaders\\object.frag");
+
+	// planet
+	Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	planet.Place(objectShader);
+
+	// orbit
+	Orbit orbit(2.95035f, 0.6504292532066034f, glm::radians(63.940270121756825f), glm::radians(32.1116423594561f), glm::radians(-96.06445668472178f), 0.0f, glm::vec4(0.36f, 0.22f, 0.82f, 1.0f));
+	orbit.GenerateOrbit(SEGMENT_COUNT);
+	Mesh orbitLine(orbit.vertices, orbit.indices);
+
+	glm::vec3 orbitPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::mat4 orbitModel = glm::mat4(1.0f);
+	orbitModel = glm::translate(orbitModel, orbitPos);
+
+	shaderProgram.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(orbitModel));
+
+	// grid
+	Grid gridDark = Grid(1000.0f, 100, glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	gridDark.Place(shaderProgram);
+
+	Grid gridBright = Grid(1000.0f, 10, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	gridBright.Place(shaderProgram);
+
+	Grid gridFull = Grid(1000.0f, 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	gridFull.Place(shaderProgram);
+
+	// light
+	glm::vec3 lightPos = glm::vec3(0.0f, -23544.2f, 0.0f);
+	// lightPos = glm::rotate(lightPos, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	Light lightSource = Light(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), lightPos);
+	lightSource.Place(lightShader);
+	lightSource.SendShaderLightInfo(objectShader);
+
+	//
+	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_MULTISAMPLE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	double prevTime = glfwGetTime();
+	// render loop
+	while (!glfwWindowShouldClose(window))
+	{
+		// glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		camera.CameraInputs(window);
+		camera.UpdateMatrix(45.0f, 0.1f, 100000.0f);
+
+		double crntTime = glfwGetTime();
+		if (crntTime - prevTime >= 1.0 / 200.0)
+		{
+			glm::vec3 pos = lightSource.objectPos;
+			// glm::vec3 axis = glm::rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(24.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
+			pos = glm::rotate(pos, glm::radians(1.0f / 60.0f), axis);
+			lightSource.objectPos = pos;
+			lightSource.Place(lightShader);
+			lightSource.SendShaderLightInfo(objectShader);
+			crntTime = prevTime;
+		}
+
+		planet.Draw(objectShader, camera);
+
+		glLineWidth(3.0f);
+		orbitLine.Draw(shaderProgram, camera, GL_LINE_STRIP);
+		glLineWidth(1.0f);
+
+		gridDark.Draw(shaderProgram, camera);
+		gridBright.Draw(shaderProgram, camera, 2.0f);
+		gridFull.Draw(shaderProgram, camera, 3.0f);
+
+		lightSource.Draw(lightShader, camera);
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	
+	shaderProgram.Delete();
+	lightShader.Delete();
+	objectShader.Delete();
+
+	planet.Delete();
+	orbitLine.Delete();
+	gridDark.Delete();
+	gridBright.Delete();
+	gridFull.Delete();
+	lightSource.Delete();
+
+	
+
+	// end of program
+	glfwDestroyWindow(window);
+	glfwTerminate();
+	return 0;
+}
