@@ -173,10 +173,7 @@ int main()
 
 		planet.Draw(objectShader, camera);
 
-		glLineWidth(3.0f);
-		orbitLine.Draw(shaderProgram, camera, GL_LINE_STRIP);
-		glLineWidth(1.0f);
-
+		orbitLine.Draw(shaderProgram, camera, 3.0f);
 		gridDark.Draw(shaderProgram, camera);
 		gridBright.Draw(shaderProgram, camera, 2.0f);
 		gridFull.Draw(shaderProgram, camera, 3.0f);
