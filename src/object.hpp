@@ -6,17 +6,17 @@
 class Object
 {
     public:
-        std::vector<Vertex> vertices = {};
-        std::vector<GLuint> indices = {};
+        std::vector<Vertex> vertices;
+        std::vector<GLuint> indices;
 
         Mesh objectMesh;
 
-        glm::mat4 objectModel = glm::mat4(1.0f);
+        glm::mat4 objectModel;
         glm::vec3 objectPos;
 
         GLenum drawType;
 
-        Object();
+        Object(glm::vec3 objectPos, GLenum );
 
         void Place(Shader& Shader);
         void Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);

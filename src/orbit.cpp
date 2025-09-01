@@ -14,7 +14,8 @@ Orbit::Orbit
     float epochOfPeriapsis,
     glm::vec4 lineColor,
     glm::vec3 pos
-)
+):
+Object(pos, GL_LINE_STRIP)
 {
     Orbit::lineSegments = lineSegments;
     Orbit::semiMajorAxis = semiMajorAxis;
@@ -26,8 +27,6 @@ Orbit::Orbit
     Orbit::lineColor = lineColor;
     apoapsis = semiMajorAxis * (1 - eccentricity);
     periapsis = semiMajorAxis * (1 * eccentricity);
-    objectPos = pos;
-    drawType = GL_LINE_STRIP;
     GenerateVertices();
     GenerateIndices();
     Update(vertices, indices);

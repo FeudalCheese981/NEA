@@ -6,13 +6,12 @@ Grid::Grid
     int divisions,
     glm::vec4 color,
 	glm::vec3 pos
-)
+):
+Object(pos, GL_LINES)
 {
     Grid::size = size;
     Grid::divisions = divisions;
     Grid::color = color;
-	objectPos = pos;
-    drawType = GL_LINES;
     GenerateVertices();
     GenerateIndices();
     Update(vertices, indices);

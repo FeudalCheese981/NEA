@@ -8,7 +8,7 @@ Light::Light
     glm::vec4 color,
     glm::vec3 pos
 ):
-Sphere(radius, segments, rings, color, pos) {}
+Sphere(radius, segments, rings, color, pos, SPHERE_COLOR_DEFAULT) {}
 
 void Light::Place(Shader& shader)
 {

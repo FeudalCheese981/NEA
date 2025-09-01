@@ -9,15 +9,16 @@ Sphere::Sphere
     int segments,
     int rings,
     glm::vec4 color,
-	glm::vec3 pos
-)
+	glm::vec3 pos,
+	unsigned int colorMode
+):
+Object(pos, GL_TRIANGLES)
 {
     Sphere::radius = radius;
     Sphere::segments = segments;
     Sphere::rings = rings;
 	Sphere::color = color;
-	objectPos = pos;
-    drawType = GL_TRIANGLES;
+	Sphere::colorMode = colorMode;
     GenerateIndices();
     GenerateVertices();
     Update(vertices, indices);
@@ -35,15 +36,24 @@ void Sphere::GenerateVertices()
 			float x = radius * sin(phi) * cos(theta);
 			float y = radius * sin(phi) * sin(theta);
 			float z = radius * cos(phi);
-			glm::vec4 color = glm::vec4(
-                (x / radius + 1.0f) * 0.5f,
-                (y / radius + 1.0f) * 0.5f,
-                (z / radius + 1.0f) * 0.5f,
-				1.0f
-            );
+
+			glm::vec4 vertexColor;
+
+			if (colorMode == SPHERE_COLOR_RGB)
+			{
+				vertexColor = glm::vec4
+				(
+					(x / radius + 1.0f) * 0.5f,
+					(y / radius + 1.0f) * 0.5f,
+					(z / radius + 1.0f) * 0.5f,
+					1.0f
+				);
+			}
+			else vertexColor = color;
+
 			glm::vec3 positon = glm::vec3(x, y, z);
 			glm::vec3 normal = glm::normalize(positon);
-			vertices.push_back(Vertex{ positon, color, normal });
+			vertices.push_back(Vertex{ positon, vertexColor, normal });
 		}
 	}
 }
@@ -59,7 +69,6 @@ void Sphere::GenerateIndices()
 			int i2 = i0 + (segments + 1);
 			int i3 = i2 + 1;
 
-			// Two triangles per quad
 			indices.push_back(i0);
 			indices.push_back(i2);
 			indices.push_back(i1);

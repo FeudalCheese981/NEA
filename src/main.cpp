@@ -98,13 +98,16 @@ int main()
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	// shader
-	Shader shaderProgram = Shader("shaders\\line.vert", "shaders\\line.frag");
+	Shader lineShader = Shader("shaders\\line.vert", "shaders\\line.frag");
 	Shader lightShader = Shader("shaders\\light.vert", "shaders\\light.frag");
 	Shader objectShader = Shader("shaders\\object.vert", "shaders\\object.frag");
 
 	// planet
-	Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
 	planet.Place(objectShader);
+	
+	Sphere moon(1.0f, 32, 16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -100.0f, 0.0f), SPHERE_COLOR_DEFAULT);
+	moon.Place(objectShader);
 
 	// orbit
 	Orbit orbitLine
@@ -119,23 +122,23 @@ int main()
 		glm::vec4(0.36f, 0.22f, 0.82f, 1.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f)
 	);
-	orbitLine.Place(shaderProgram);
+	orbitLine.Place(lineShader);
 	
 	// grid
-	Grid gridDark = Grid(1000.0f, 100, glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	gridDark.Place(shaderProgram);
+	Grid gridDark(1000.0f, 100, glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	gridDark.Place(lineShader);
 
-	Grid gridBright = Grid(1000.0f, 10, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	gridBright.Place(shaderProgram);
+	Grid gridBright(1000.0f, 10, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	gridBright.Place(lineShader);
 
-	Grid gridFull = Grid(1000.0f, 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	gridFull.Place(shaderProgram);
+	Grid gridFull(1000.0f, 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	gridFull.Place(lineShader);
 
 	// light
 	glm::vec3 lightPos = glm::vec3(0.0f, -23544.2f, 0.0f);
 	// lightPos = glm::rotate(lightPos, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	Light lightSource = Light(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), lightPos);
+	Light lightSource(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), lightPos);
 	lightSource.Place(lightShader);
 	lightSource.SendShaderLightInfo(objectShader);
 
@@ -171,30 +174,31 @@ int main()
 			crntTime = prevTime;
 		}
 
-		planet.Draw(objectShader, camera);
-
-		orbitLine.Draw(shaderProgram, camera, 3.0f);
-		gridDark.Draw(shaderProgram, camera);
-		gridBright.Draw(shaderProgram, camera, 2.0f);
-		gridFull.Draw(shaderProgram, camera, 3.0f);
-
 		lightSource.Draw(lightShader, camera);
+		
+		planet.Draw(objectShader, camera);
+		moon.Draw(objectShader, camera);
+
+		orbitLine.Draw(lineShader, camera, 3.0f);
+		gridDark.Draw(lineShader, camera);
+		gridBright.Draw(lineShader, camera, 2.0f);
+		gridFull.Draw(lineShader, camera, 3.0f);	
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	
-	shaderProgram.Delete();
+	lineShader.Delete();
 	lightShader.Delete();
 	objectShader.Delete();
 
 	planet.Delete();
+	moon.Delete();
 	orbitLine.Delete();
 	gridDark.Delete();
 	gridBright.Delete();
 	gridFull.Delete();
 	lightSource.Delete();
-
 	
 
 	// end of program

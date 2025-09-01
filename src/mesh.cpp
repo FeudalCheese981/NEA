@@ -27,12 +27,7 @@ void Mesh::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
 void Mesh::Draw(Shader& shader, Camera& camera, GLenum type)
 {
-	shader.Activate();
 	VAO.Bind();
-	
-	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.position.x, camera.position.y, camera.position.z);
-	camera.Matrix(shader, "camMatrix");
-
 	glDrawElements(type, indices.size(), GL_UNSIGNED_INT, 0);
 }
 

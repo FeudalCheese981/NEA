@@ -1,17 +1,18 @@
 #include "object.hpp"
 
-Object::Object(): objectMesh(vertices, indices)
+Object::Object(glm::vec3 objectPos, GLenum drawType): objectMesh(vertices, indices)
 {
-    Object::vertices = vertices;
-    Object::indices = indices;
+    Object::vertices = {};
+    Object::indices = {};
+    Object::objectPos = objectPos;
+    Object::objectModel = glm::mat4(1.0f);
+    Object::drawType = drawType;
 }
 
 void Object::Place(Shader& shader)
 {
     objectModel = glm::mat4(1.0f);
     objectModel = glm::translate(objectModel, objectPos);
-    shader.Activate();
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
 }
 
 void Object::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
@@ -23,6 +24,12 @@ void Object::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
 void Object::Draw(Shader& shader, Camera& camera, float thickness)
 {   
+    shader.Activate();
+	
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
+	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.position.x, camera.position.y, camera.position.z);
+	camera.Matrix(shader, "camMatrix");
+
     glLineWidth(thickness);
     glPointSize(thickness);
     objectMesh.Draw(shader, camera, drawType);
