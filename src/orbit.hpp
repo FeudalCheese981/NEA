@@ -1,13 +1,13 @@
 #ifndef ORBIT_HPP
 #define ORBIT_HPP
 
-#include "mesh.hpp"
+#include "object.hpp"
 
-glm::vec3 eulerAngleTransformation(float x, float y, float z, float w, float i, float o);
-
-class Orbit
+class Orbit: public Object
 {
     public:
+        int lineSegments;
+
         float semiMajorAxis;
         float eccentricity;
         float inclination;
@@ -24,9 +24,21 @@ class Orbit
 
         glm::vec4 lineColor;
 
-        Orbit(float semiMajorAxis, float eccentricity, float inclination, float argumentOfPeriapsis, float longitudeOfAscendingNode, float epochOfPeriapsis, glm::vec4 lineColor);
+        Orbit
+        (
+            int lineSegments,
+            float semiMajorAxis, 
+            float eccentricity, 
+            float inclination, 
+            float argumentOfPeriapsis, 
+            float longitudeOfAscendingNode, 
+            float epochOfPeriapsis, 
+            glm::vec4 lineColor,
+            glm::vec3 pos
+        );
 
-        void GenerateOrbit(int segments);
+        void GenerateVertices() override;
+        void GenerateIndices() override;
 };
 
 #endif

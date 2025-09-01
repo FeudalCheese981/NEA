@@ -32,21 +32,17 @@ void Sphere::GenerateVertices()
 		for (int j = 0; j <= segments; ++j)
 		{
 			float theta = 2.0f * M_PI * (float)j / segments;
-
 			float x = radius * sin(phi) * cos(theta);
 			float y = radius * sin(phi) * sin(theta);
 			float z = radius * cos(phi);
-
 			glm::vec4 color = glm::vec4(
                 (x / radius + 1.0f) * 0.5f,
                 (y / radius + 1.0f) * 0.5f,
                 (z / radius + 1.0f) * 0.5f,
 				1.0f
             );
-			
 			glm::vec3 positon = glm::vec3(x, y, z);
 			glm::vec3 normal = glm::normalize(positon);
-
 			vertices.push_back(Vertex{ positon, color, normal });
 		}
 	}

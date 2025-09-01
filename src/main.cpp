@@ -107,17 +107,20 @@ int main()
 	planet.Place(objectShader);
 
 	// orbit
-	Orbit orbit(2.95035f, 0.6504292532066034f, glm::radians(63.940270121756825f), glm::radians(32.1116423594561f), glm::radians(-96.06445668472178f), 0.0f, glm::vec4(0.36f, 0.22f, 0.82f, 1.0f));
-	orbit.GenerateOrbit(SEGMENT_COUNT);
-	Mesh orbitLine(orbit.vertices, orbit.indices);
-
-	glm::vec3 orbitPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::mat4 orbitModel = glm::mat4(1.0f);
-	orbitModel = glm::translate(orbitModel, orbitPos);
-
-	shaderProgram.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(orbitModel));
-
+	Orbit orbitLine
+	(
+		SEGMENT_COUNT,
+		2.95035f,
+		0.6504292532066034f,
+		glm::radians(63.940270121756825f),
+		glm::radians(32.1116423594561f),
+		glm::radians(-96.06445668472178f),
+		0.0f,
+		glm::vec4(0.36f, 0.22f, 0.82f, 1.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f)
+	);
+	orbitLine.Place(shaderProgram);
+	
 	// grid
 	Grid gridDark = Grid(1000.0f, 100, glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	gridDark.Place(shaderProgram);
