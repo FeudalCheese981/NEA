@@ -17,6 +17,8 @@ const unsigned int SEGMENT_COUNT = 1024;
 int windowXPos, windowYPos;
 int windowWidth, windowHeight;
 bool fullscreen = false;
+double simRate = 1.0;
+double simTime = 0.0;
 
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -56,6 +58,21 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
 		camera.ResetCamera();
+	}
+
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+	{
+		simRate *= 2.0;
+		std::cout << "Sim Rate: " << simRate << "\n";
+	}
+	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+	{
+		simRate /= 2.0;
+		std::cout << "Sim Rate: " << simRate << "\n";
+	}
+	if (key == GLFW_KEY_T && action == GLFW_PRESS)
+	{
+		std::cout << "Sim Time: " << simTime << "\n";
 	}
 }
 
@@ -106,7 +123,7 @@ int main()
 	Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
 	planet.Place(objectShader);
 	
-	Sphere moon(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -100.0f, 0.0f), SPHERE_COLOR_DEFAULT);
+	Sphere moon(0.27f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -60.2696f, 0.0f), SPHERE_COLOR_DEFAULT);
 	moon.Place(objectShader);
 
 	// orbit
@@ -152,6 +169,9 @@ int main()
 
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	double prevTime = glfwGetTime();
+	double accumulator = 0.0;
+	double deltaTime = 0.01;
+
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -162,23 +182,25 @@ int main()
 		camera.UpdateMatrix(45.0f, 0.1f, 100000.0f);
 
 		double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1.0 / 200.0)
+		double frameTime = crntTime - prevTime;
+		prevTime = crntTime;
+		accumulator += frameTime;
+
+		while (accumulator >= deltaTime)
 		{
 			glm::vec3 pos = sun.objectPos;
-			// glm::vec3 axis = glm::rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(24.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
-			pos = glm::rotate(pos, glm::radians(1.0f / 60.0f), axis);
+			pos = glm::rotate(pos, glm::radians((1.0f / (60.0f * 60.0f * 24.0f)) * (float)deltaTime * (float)simRate * 360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			sun.objectPos = pos;
 			sun.Place(lightShader);
 			sun.SendLightInfoToShader(objectShader);
 
 			glm::vec3 moonPos = moon.objectPos;
-			moonPos = glm::rotate(moonPos, glm::radians(1.0f / (60.0f * 28.0f)), axis);
+			moonPos = glm::rotate(moonPos, glm::radians((1.0f / (60.0f * 60.0f * 24.0f * 28.0f)) * (float)deltaTime * (float)simRate * 360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			moon.objectPos = moonPos;
-
 			moon.Place(objectShader);
 
-			crntTime = prevTime;
+			accumulator -= deltaTime;
+			simTime += (deltaTime * simRate);
 		}
 
 		sun.Draw(lightShader, camera);
