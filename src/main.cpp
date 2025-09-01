@@ -106,7 +106,7 @@ int main()
 	Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
 	planet.Place(objectShader);
 	
-	Sphere moon(1.0f, 32, 16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -100.0f, 0.0f), SPHERE_COLOR_DEFAULT);
+	Sphere moon(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -100.0f, 0.0f), SPHERE_COLOR_DEFAULT);
 	moon.Place(objectShader);
 
 	// orbit
@@ -135,12 +135,12 @@ int main()
 	gridFull.Place(lineShader);
 
 	// light
-	glm::vec3 lightPos = glm::vec3(0.0f, -23544.2f, 0.0f);
-	// lightPos = glm::rotate(lightPos, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec3 sunPos = glm::vec3(0.0f, -23544.2f, 0.0f);
+	// sunPos = glm::rotate(sunPos, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	Light lightSource(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), lightPos);
-	lightSource.Place(lightShader);
-	lightSource.SendShaderLightInfo(objectShader);
+	Light sun(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), sunPos);
+	sun.Place(lightShader);
+	sun.SendLightInfoToShader(objectShader);
 
 	//
 	glEnable(GL_DEPTH_TEST);
@@ -164,17 +164,24 @@ int main()
 		double crntTime = glfwGetTime();
 		if (crntTime - prevTime >= 1.0 / 200.0)
 		{
-			glm::vec3 pos = lightSource.objectPos;
+			glm::vec3 pos = sun.objectPos;
 			// glm::vec3 axis = glm::rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(24.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
 			pos = glm::rotate(pos, glm::radians(1.0f / 60.0f), axis);
-			lightSource.objectPos = pos;
-			lightSource.Place(lightShader);
-			lightSource.SendShaderLightInfo(objectShader);
+			sun.objectPos = pos;
+			sun.Place(lightShader);
+			sun.SendLightInfoToShader(objectShader);
+
+			glm::vec3 moonPos = moon.objectPos;
+			moonPos = glm::rotate(moonPos, glm::radians(1.0f / (60.0f * 28.0f)), axis);
+			moon.objectPos = moonPos;
+
+			moon.Place(objectShader);
+
 			crntTime = prevTime;
 		}
 
-		lightSource.Draw(lightShader, camera);
+		sun.Draw(lightShader, camera);
 		
 		planet.Draw(objectShader, camera);
 		moon.Draw(objectShader, camera);
@@ -198,7 +205,7 @@ int main()
 	gridDark.Delete();
 	gridBright.Delete();
 	gridFull.Delete();
-	lightSource.Delete();
+	sun.Delete();
 	
 
 	// end of program

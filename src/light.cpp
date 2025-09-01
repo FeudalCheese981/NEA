@@ -10,16 +10,17 @@ Light::Light
 ):
 Sphere(radius, segments, rings, color, pos, SPHERE_COLOR_DEFAULT) {}
 
-void Light::Place(Shader& shader)
+void Light::Draw(Shader& shader, Camera& camera, float thickness)
 {
-    objectModel = glm::mat4(1.0f);
-    objectModel = glm::translate(objectModel, objectPos);
     shader.Activate();
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
     glUniform4f(glGetUniformLocation(shader.ID, "lightColor"), color.x, color.y, color.z, color.w);
+    camera.Matrix(shader, "camMatrix");
+
+    objectMesh.Draw(shader, camera, drawType);
 }
 
-void Light::SendShaderLightInfo(Shader& shader)
+void Light::SendLightInfoToShader(Shader& shader)
 {
     shader.Activate();
     glUniform4f(glGetUniformLocation(shader.ID, "lightColor"), color.x, color.y, color.z, color.w);

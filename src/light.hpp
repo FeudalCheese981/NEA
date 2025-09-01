@@ -15,8 +15,8 @@ class Light: public Sphere
             glm::vec3 pos
         );
         
-        void Place(Shader& shader);
-        void SendShaderLightInfo(Shader& shader);
+        void Draw(Shader& shader, Camera& camera, float thickness = 1.0f);
+        void SendLightInfoToShader(Shader& shader);
 };
 
 #endif
