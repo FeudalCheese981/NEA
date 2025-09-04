@@ -2,8 +2,11 @@
 
 EBO::EBO(std::vector<GLuint>& indices)
 {
+	// Generate the buffer
 	glGenBuffers(1, &ID);
+	// Bind the buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
+	// Pass in the data
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 }
 
