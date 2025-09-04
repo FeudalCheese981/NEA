@@ -18,7 +18,7 @@ class Object
 
         Object(glm::vec3 objectPos, GLenum );
 
-        void Place(Shader& Shader);
+        void Place();
         void Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
         void Draw(Shader& shader, Camera& camera, float thickness = 1.0f);
         void Delete();

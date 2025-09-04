@@ -9,15 +9,21 @@
 class Mesh
 {
 	public:
+		// Vector containing vertex info
 		std::vector<Vertex> vertices;
+		// Vector containing indices
 		std::vector<GLuint> indices;
-
+		// VAO 
 		VAO VAO;
 
+		// Mesh constructor
 		Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
 
-		void Draw(Shader& shader, Camera& camera, GLenum type);
+		// Draw Mesh
+		void Draw(GLenum type);
+		// Update Mesh with new vertices and indices
 		void Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+		// Delete Mesh
 		void Delete();
 };
 

@@ -121,10 +121,10 @@ int main()
 
 	// planet
 	Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
-	planet.Place(objectShader);
+	planet.Place();
 	
 	Sphere moon(0.27f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -60.2696f, 0.0f), SPHERE_COLOR_DEFAULT);
-	moon.Place(objectShader);
+	moon.Place();
 
 	// orbit
 	Orbit orbitLine
@@ -139,24 +139,24 @@ int main()
 		glm::vec4(0.36f, 0.22f, 0.82f, 1.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f)
 	);
-	orbitLine.Place(lineShader);
+	orbitLine.Place();
 	
 	// grid
 	Grid gridDark(1000.0f, 100, glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	gridDark.Place(lineShader);
+	gridDark.Place();
 
 	Grid gridBright(1000.0f, 10, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	gridBright.Place(lineShader);
+	gridBright.Place();
 
 	Grid gridFull(1000.0f, 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	gridFull.Place(lineShader);
+	gridFull.Place();
 
 	// light
 	glm::vec3 sunPos = glm::vec3(0.0f, -23544.2f, 0.0f);
 	// sunPos = glm::rotate(sunPos, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	Light sun(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), sunPos);
-	sun.Place(lightShader);
+	sun.Place();
 	sun.SendLightInfoToShader(objectShader);
 
 	//
@@ -179,7 +179,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.CameraInputs(window);
-		camera.UpdateMatrix(45.0f, 0.1f, 100000.0f);
+		camera.UpdateMatrix(45.0f, 0.1f, 1000000.0f);
 
 		double crntTime = glfwGetTime();
 		double frameTime = crntTime - prevTime;
@@ -191,13 +191,13 @@ int main()
 			glm::vec3 pos = sun.objectPos;
 			pos = glm::rotate(pos, glm::radians((1.0f / (60.0f * 60.0f * 24.0f)) * (float)deltaTime * (float)simRate * 360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			sun.objectPos = pos;
-			sun.Place(lightShader);
+			sun.Place();
 			sun.SendLightInfoToShader(objectShader);
 
 			glm::vec3 moonPos = moon.objectPos;
 			moonPos = glm::rotate(moonPos, glm::radians((1.0f / (60.0f * 60.0f * 24.0f * 28.0f)) * (float)deltaTime * (float)simRate * 360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			moon.objectPos = moonPos;
-			moon.Place(objectShader);
+			moon.Place();
 
 			accumulator -= deltaTime;
 			simTime += (deltaTime * simRate);
@@ -209,9 +209,10 @@ int main()
 		moon.Draw(objectShader, camera);
 
 		orbitLine.Draw(lineShader, camera, 3.0f);
-		gridDark.Draw(lineShader, camera);
-		gridBright.Draw(lineShader, camera, 2.0f);
-		gridFull.Draw(lineShader, camera, 3.0f);	
+		
+		// gridDark.Draw(lineShader, camera);
+		// gridBright.Draw(lineShader, camera, 2.0f);
+		// gridFull.Draw(lineShader, camera, 3.0f);	
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -9,7 +9,7 @@ Object::Object(glm::vec3 objectPos, GLenum drawType): objectMesh(vertices, indic
     Object::drawType = drawType;
 }
 
-void Object::Place(Shader& shader)
+void Object::Place()
 {
     objectModel = glm::mat4(1.0f);
     objectModel = glm::translate(objectModel, objectPos);
@@ -32,7 +32,7 @@ void Object::Draw(Shader& shader, Camera& camera, float thickness)
 
     glLineWidth(thickness);
     glPointSize(thickness);
-    objectMesh.Draw(shader, camera, drawType);
+    objectMesh.Draw(drawType);
     glLineWidth(1.0f);
     glPointSize(1.0f);
 }

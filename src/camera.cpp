@@ -146,10 +146,14 @@ void Camera::ScrollInput(double yOffset)
 {
 	if (mode == CAMERA_MODE_ORBITAL)
 	{
-		glm::vec3 newPosition = position + (float)yOffset * orientation;
-		if (glm::length(newPosition) >= 1.0f)
+		glm::vec3 newPosition = position + (float)yOffset * orientation * glm::length(position) / 10.0f;
+		if (glm::length(newPosition) >= 2.0f)
 		{
 			position = newPosition;
+		}
+		else
+		{
+			position = glm::normalize(position) * 2.0f;
 		}
 	}
 	

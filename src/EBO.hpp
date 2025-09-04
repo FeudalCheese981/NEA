@@ -8,16 +8,16 @@
 class EBO
 {
 	public:
-		// ID reference that opengl methods will use
+		// ID reference that OpenGl methods will use
 		GLuint ID;
 		// Constructor takes in indices
 		EBO(std::vector<GLuint>& indices);
 
-		// Bind the EBO to the OpenGL context
+		// Bind EBO to OpenGL context
 		void Bind();
-		// Unbind the EBO from the OpenGL context
+		// Unbind EBO from OpenGL context
 		void Unbind();
-		// Delete the EBO
+		// Delete EBO
 		void Delete();
 };
 

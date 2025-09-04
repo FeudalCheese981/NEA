@@ -25,7 +25,7 @@ void Mesh::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 	EBO.Delete();
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera, GLenum type)
+void Mesh::Draw(GLenum type)
 {
 	VAO.Bind();
 	glDrawElements(type, indices.size(), GL_UNSIGNED_INT, 0);
