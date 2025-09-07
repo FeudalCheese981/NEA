@@ -70,12 +70,12 @@ void Sphere::GenerateIndices()
 			int i3 = i2 + 1;
 
 			indices.push_back(i0);
-			indices.push_back(i2);
 			indices.push_back(i1);
+			indices.push_back(i2);
 
 			indices.push_back(i1);
-			indices.push_back(i2);
 			indices.push_back(i3);
+			indices.push_back(i2);
 		}
 	}
 }

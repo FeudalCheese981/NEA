@@ -164,13 +164,20 @@ int main()
 
 	glEnable(GL_MULTISAMPLE);
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	double prevTime = glfwGetTime();
 	double accumulator = 0.0;
-	double deltaTime = 0.01;
+	double deltaTime = 1.0 / 1000.0;
+
+	double fpsPrevTime = glfwGetTime();
+	unsigned int frameCounter = 0;
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -178,13 +185,21 @@ int main()
 		// glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera.CameraInputs(window);
-		camera.UpdateMatrix(45.0f, 0.1f, 1000000.0f);
-
 		double crntTime = glfwGetTime();
 		double frameTime = crntTime - prevTime;
 		prevTime = crntTime;
 		accumulator += frameTime;
+
+		double fpsCrntTime = crntTime;
+		frameCounter++;
+		if ((fpsCrntTime - fpsPrevTime) >= 1.0 / 60.0)
+		{
+			std::string FPS = std::to_string((1.0 / (fpsCrntTime - fpsPrevTime)) * frameCounter);
+			std::string newTitle = "NEA OpenGL - "  + FPS + "FPS";
+			glfwSetWindowTitle(window, newTitle.c_str());
+			fpsPrevTime = fpsCrntTime;
+			frameCounter = 0;
+		}
 
 		while (accumulator >= deltaTime)
 		{
@@ -202,6 +217,8 @@ int main()
 			accumulator -= deltaTime;
 			simTime += (deltaTime * simRate);
 		}
+		camera.CameraInputs(window);
+		camera.UpdateMatrix(45.0f, 0.1f, 1000000.0f);
 
 		sun.Draw(lightShader, camera);
 		
