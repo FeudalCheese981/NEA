@@ -16,7 +16,7 @@ Object(pos, GL_TRIANGLES)
 {
     sphereRadius = radius;
     sphereSegments = segments;
-    sphereRadius = rings;
+    sphereRings = rings;
 	sphereColor = color;
 	sphereColorMode = colorMode;
     GenerateIndices();

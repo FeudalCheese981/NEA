@@ -27,6 +27,7 @@ void Window::Initialize()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
     glfwWindowHint(GLFW_OPENGL_PROFILE, OPENGL_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, MSAAsamples);
 
     window = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
     if (!window)
@@ -57,10 +58,15 @@ void Window::Initialize()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
+    
+    glEnable(GL_MULTISAMPLE);
 
     glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CCW);
+
     glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -241,9 +247,9 @@ void Window::RenderLoop()
         }
 
         // render
+        DrawObjects();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        DrawObjects();
         glfwSwapBuffers(window);
     }
 }

@@ -53,6 +53,7 @@ class Window
         double deltaTime = DEFAULT_SIM_RATE;
 
         bool fullscreen = false;
+        bool multisample = true;
         bool wireframeMode = false;
         bool faceCulling = true;
 
