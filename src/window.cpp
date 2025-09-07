@@ -17,16 +17,15 @@ camera(width, height)
     windowYPos = yPos;
 }
 
-bool Window::Initialize()
+void Window::Initialize()
 {
     if (!glfwInit())
     {
         std::cerr << "Failed to initialize GLFW";
-        return false;
     }
 
-    glfwWindowHint(GLFW_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
-    glfwWindowHint(GLFW_VERSION_MINOR, OPENGL_VERSION_MINOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
     glfwWindowHint(GLFW_OPENGL_PROFILE, OPENGL_PROFILE);
 
     window = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
@@ -34,17 +33,17 @@ bool Window::Initialize()
     {
         std::cerr << "Failed to create GLFW window";
         glfwTerminate();
-        return false;
     }
+    glfwMakeContextCurrent(window);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cerr << "Failed to initialize GLAD loader";
         glfwTerminate();
-        return false;
     }
 
-    glfwMakeContextCurrent(window);
+    
+    glfwSetWindowPos(window, windowXPos, windowYPos);
     glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, key_callback);
@@ -65,11 +64,22 @@ bool Window::Initialize()
     glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    return true;
+    
+    lightShader = std::make_unique<Shader>("shaders\\light.vert", "shaders\\light.frag");
+    shaderProgram = std::make_unique<Shader>("shaders\\object.vert", "shaders\\object.frag");
+    sun = std::make_unique<Light>(109.0f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), glm::vec3(0.0f, -23544.2f, 0.0f));
+    planet = std::make_unique<Sphere>(1.0f, segmentCount, segmentCount / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
+
+    sun->Place();
+    sun->SendLightInfoToShader(*shaderProgram);
+    planet->Place();
 }
 
 void Window::Terminate() 
-{
+{   
+    DeleteObject();
+    DeleteShader();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -126,11 +136,26 @@ void Window::SaveSaveFile() {}
 
 void Window::AddObject(ObjectType type) {}
 void Window::UpdateObjects() {}
-void Window::DrawObjects() {}
-void Window::DeleteObject() {}
+
+void Window::DrawObjects()
+{
+    sun->Draw(*lightShader, camera);
+    planet->Draw(*shaderProgram, camera);
+}
+
+void Window::DeleteObject()
+{
+    sun->Delete();
+    planet->Delete();
+}
 
 void Window::AddShader(const char* vertexFile, const char* fragmentFile) {}
-void Window::DeleteShader() {}
+
+void Window::DeleteShader()
+{
+    lightShader->Delete();
+    shaderProgram->Delete();
+}
 
 void Window::DrawUI()
 {
@@ -138,7 +163,10 @@ void Window::DrawUI()
     {
         if (ImGui::BeginMenu("File"))
         {
-            
+            if (ImGui::MenuItem("Quit", "Alt+F4"))
+            {
+                glfwSetWindowShouldClose(window, true);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Debug"))
@@ -194,6 +222,8 @@ void Window::RenderLoop()
 
         // Input polling and UI
         glfwPollEvents();
+        camera.CameraInputs(window);
+        camera.UpdateMatrix(FOV, nearPlaneDist, farPlaneDist);
         DrawUI();
 
         // calculate time deltas for physics
@@ -211,9 +241,9 @@ void Window::RenderLoop()
         }
 
         // render
-        DrawObjects();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        DrawObjects();
         glfwSwapBuffers(window);
     }
 }
