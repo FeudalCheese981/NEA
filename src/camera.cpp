@@ -2,9 +2,14 @@
 
 Camera::Camera(int width, int height)
 {
-	Camera::width = width;
-	Camera::height = height;
+	ScreenSizeUpdate(width, height);
 	ResetCamera();
+}
+
+void Camera::ScreenSizeUpdate(int width, int height)
+{
+	windowWidth = width;
+	windowHeight = height;
 }
 
 void Camera::UpdateMatrix(float FOVdeg, float nearPlane, float farPlane)
@@ -13,7 +18,7 @@ void Camera::UpdateMatrix(float FOVdeg, float nearPlane, float farPlane)
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	view = glm::lookAt(position, position + orientation, up);
-	projection = glm::perspective(glm::radians(FOVdeg), ((float)width / (float)height), nearPlane, farPlane);
+	projection = glm::perspective(glm::radians(FOVdeg), ((float)windowWidth / (float)windowHeight), nearPlane, farPlane);
 	
 	cameraMatrix = projection * view;
 }
@@ -25,7 +30,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 
 void Camera::CameraInputs(GLFWwindow* window)
 {
-	if (mode == CAMERA_MODE_FREE)
+	if (mode == FREE)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
@@ -80,8 +85,8 @@ void Camera::CameraInputs(GLFWwindow* window)
 			double mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
-			float rotY = sensitivity * (float)(mouseY - mouseClickY) / (float)height;
-			float rotX = sensitivity * (float)(mouseX - mouseClickX) / (float)width;
+			float rotY = sensitivity * (float)(mouseY - mouseClickY) / (float)windowHeight;
+			float rotX = sensitivity * (float)(mouseX - mouseClickX) / (float)windowWidth;
 
 			glm::vec3 newOrientation = glm::rotate(orientation, glm::radians(-rotY), glm::normalize(glm::cross(orientation, up)));
 
@@ -101,7 +106,7 @@ void Camera::CameraInputs(GLFWwindow* window)
 			glfwGetCursorPos(window, &mouseClickX, &mouseClickY);
 		}
 	}
-	else if (mode == CAMERA_MODE_ORBITAL)
+	else if (mode == ORBITAL)
 	{
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
@@ -117,8 +122,8 @@ void Camera::CameraInputs(GLFWwindow* window)
 			double mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
-			float rotX = sensitivity * (float)((mouseY - mouseClickY) / height);
-			float rotY = sensitivity * (float)((mouseX - mouseClickX) / width);
+			float rotX = sensitivity * (float)((mouseY - mouseClickY) / windowHeight);
+			float rotY = sensitivity * (float)((mouseX - mouseClickX) / windowWidth);
 
 			glm::vec3 newOrientation = glm::rotate(orientation, glm::radians(-rotX), glm::normalize(glm::cross(orientation, up)));
 			glm::vec3 newPosition = glm::rotate(position, glm::radians(-rotX), glm::normalize(glm::cross(orientation, up)));
@@ -144,7 +149,7 @@ void Camera::CameraInputs(GLFWwindow* window)
 
 void Camera::ScrollInput(double yOffset)
 {
-	if (mode == CAMERA_MODE_ORBITAL)
+	if (mode == ORBITAL)
 	{
 		glm::vec3 newPosition = position + (float)yOffset * orientation * glm::length(position) / 10.0f;
 		if (glm::length(newPosition) >= 2.0f)
@@ -161,17 +166,17 @@ void Camera::ScrollInput(double yOffset)
 
 void Camera::ChangeMode()
 {
-	if (mode == CAMERA_MODE_ORBITAL) 
+	if (mode == ORBITAL) 
 	{
-		mode = CAMERA_MODE_FREE;
+		mode = FREE;
 		positionStoreFree = position;
 		orientationStoreFree = orientation;
 		position = positionStoreOrbital;
 		orientation = orientationStoreOrbital;
 	}
-	else if (mode == CAMERA_MODE_FREE)
+	else if (mode == FREE)
 	{
-		mode = CAMERA_MODE_ORBITAL;
+		mode = ORBITAL;
 		positionStoreOrbital = position;
 		orientationStoreOrbital = orientation;
 		position = positionStoreFree;
@@ -181,7 +186,7 @@ void Camera::ChangeMode()
 
 void Camera::ResetCamera()
 {
-	position = glm::vec3(2.0f, 0.0f, 0.0f);
+	position = DEFAULT_POS;
 	orientation = -position;
 	positionStoreFree = position;
 	orientationStoreFree = orientation;

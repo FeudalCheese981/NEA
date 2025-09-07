@@ -3,18 +3,17 @@
 
 #include "object.hpp"
 
-const unsigned int SPHERE_COLOR_DEFAULT = 0;
-const unsigned int SPHERE_COLOR_RGB = 1;
+enum ColorMode { SPHERE_COLOR_DEFAULT, SPHERE_COLOR_RGB };
 
 class Sphere: public Object
 {
     public:
-        float radius;
-        int segments;
-        int rings;
+        float sphereRadius;
+        int sphereSegments;
+        int sphereRings;
 
-        glm::vec4 color;
-        unsigned int colorMode;
+        glm::vec4 sphereColor;
+        unsigned int sphereColorMode;
 
         Sphere
         (

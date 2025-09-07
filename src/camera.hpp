@@ -11,8 +11,8 @@
 
 #include "shader.hpp"
 
-const int CAMERA_MODE_FREE = 0;
-const int CAMERA_MODE_ORBITAL = 1;
+enum CameraMode { FREE, ORBITAL };
+const glm::vec3 DEFAULT_POS = glm::vec3(2.0f, 0.0f, 0.0f);
 
 class Camera
 {
@@ -34,16 +34,17 @@ class Camera
 		double mouseClickX = 0.0;
 		double mouseClickY = 0.0;
 
-		int width;
-		int height;
+		int windowWidth;
+		int windowHeight;
 
 		float speed = DEFAULT_SPEED;
 		float sensitivity = 150.0f;
 
-		int mode = CAMERA_MODE_FREE;
+		int mode = FREE;
 
 		Camera(int width, int height);
 
+		void ScreenSizeUpdate(int width, int height);
 		void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 		void Matrix(Shader& shader, const char* uniform);
 		void CameraInputs(GLFWwindow* window);

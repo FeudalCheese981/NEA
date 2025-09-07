@@ -36,7 +36,7 @@ void Orbit::GenerateVertices()
 {
     for (int i = 0; i <= lineSegments; ++i)
     {
-        float phi = 2.0f * M_PI * (float)i / lineSegments;
+        float phi = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(lineSegments);
         float r = (semiMajorAxis * (1 - (eccentricity * eccentricity))) / (1 + eccentricity * cos(phi));
         float x = r * cos(phi);
         float y = r * sin(phi);

@@ -1,10 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "orbit.hpp"
-#include "sphere.hpp"
-#include "light.hpp"
-#include "grid.hpp"
+#include "window.hpp"
 
 // GLFW & window settings
 const unsigned int OPENGL_VERSION_MAJOR = 4;
@@ -27,8 +24,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	if (width && height)
 	{
 		glViewport(0, 0, width, height);
-		camera.width = width;
-		camera.height = height;
+		camera.windowWidth = width;
+		camera.windowHeight = height;
 	}
 }
 
@@ -161,7 +158,7 @@ int main()
 
 	//
 	glEnable(GL_DEPTH_TEST);
-
+	
 	glEnable(GL_MULTISAMPLE);
 
 	glEnable(GL_CULL_FACE);

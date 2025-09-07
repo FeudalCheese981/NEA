@@ -14,11 +14,11 @@ Sphere::Sphere
 ):
 Object(pos, GL_TRIANGLES)
 {
-    Sphere::radius = radius;
-    Sphere::segments = segments;
-    Sphere::rings = rings;
-	Sphere::color = color;
-	Sphere::colorMode = colorMode;
+    sphereRadius = radius;
+    sphereSegments = segments;
+    sphereRadius = rings;
+	sphereColor = color;
+	sphereColorMode = colorMode;
     GenerateIndices();
     GenerateVertices();
     Update(vertices, indices);
@@ -26,30 +26,30 @@ Object(pos, GL_TRIANGLES)
 
 void Sphere::GenerateVertices()
 {
-    for (int i = 0; i <= rings; ++i)
+    for (int i = 0; i <= sphereRings; ++i)
 	{
-		float phi = M_PI * (float)i / rings;
+		float phi = M_PI * static_cast<float>(i) / static_cast<float>(sphereRings);
 
-		for (int j = 0; j <= segments; ++j)
+		for (int j = 0; j <= sphereSegments; ++j)
 		{
-			float theta = 2.0f * M_PI * (float)j / segments;
-			float x = radius * sin(phi) * cos(theta);
-			float y = radius * sin(phi) * sin(theta);
-			float z = radius * cos(phi);
+			float theta = 2.0f * M_PI * static_cast<float>(j) / static_cast<float>(sphereSegments);
+			float x = sphereRadius * sin(phi) * cos(theta);
+			float y = sphereRadius * sin(phi) * sin(theta);
+			float z = sphereRadius * cos(phi);
 
 			glm::vec4 vertexColor;
 
-			if (colorMode == SPHERE_COLOR_RGB)
+			if (sphereColorMode == SPHERE_COLOR_RGB)
 			{
 				vertexColor = glm::vec4
 				(
-					(x / radius + 1.0f) * 0.5f,
-					(y / radius + 1.0f) * 0.5f,
-					(z / radius + 1.0f) * 0.5f,
+					(x / sphereRadius + 1.0f) * 0.5f,
+					(y / sphereRadius + 1.0f) * 0.5f,
+					(z / sphereRadius + 1.0f) * 0.5f,
 					1.0f
 				);
 			}
-			else vertexColor = color;
+			else vertexColor = sphereColor;
 
 			glm::vec3 positon = glm::vec3(x, y, z);
 			glm::vec3 normal = glm::normalize(positon);
@@ -60,13 +60,13 @@ void Sphere::GenerateVertices()
 
 void Sphere::GenerateIndices()
 {
-    for (int y = 0; y < rings; ++y)
+    for (int y = 0; y < sphereRings; ++y)
 	{
-		for (int x = 0; x < segments; ++x)
+		for (int x = 0; x < sphereSegments; ++x)
 		{
-			int i0 = y * (segments + 1) + x;
+			int i0 = y * (sphereSegments + 1) + x;
 			int i1 = i0 + 1;
-			int i2 = i0 + (segments + 1);
+			int i2 = i0 + (sphereSegments + 1);
 			int i3 = i2 + 1;
 
 			indices.push_back(i0);

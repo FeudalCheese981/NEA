@@ -13,9 +13,9 @@ void Mesh::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 	VAO.Bind();
 	VBO VBO(vertices);
 	EBO EBO(indices);
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	VAO.LinkAttrib(VBO, 1, 4, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(GLfloat)));
-	VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(7 * sizeof(GLfloat)));
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(0));
+	VAO.LinkAttrib(VBO, 1, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+	VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(7 * sizeof(GLfloat)));
 
 	VAO.Unbind();
 	VBO.Unbind();
