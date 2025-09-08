@@ -6,9 +6,8 @@
 class Grid: public Object
 {
     public:
-        float size;
-        int divisions;
-        glm::vec4 color;
+        float gridSize;
+        int gridDivisions;
 
         Grid
         (

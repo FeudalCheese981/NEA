@@ -28,7 +28,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-void Camera::CameraInputs(GLFWwindow* window)
+void Camera::CameraKeyInput(GLFWwindow* window)
 {
 	if (mode == FREE)
 	{
@@ -70,7 +70,13 @@ void Camera::CameraInputs(GLFWwindow* window)
 		{
 			speed = DEFAULT_SPEED;
 		}
+	}
+}
 
+void Camera::CameraMouseInput(GLFWwindow* window)
+{
+	if (mode == FREE)
+	{
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -147,7 +153,7 @@ void Camera::CameraInputs(GLFWwindow* window)
 	}
 }
 
-void Camera::ScrollInput(double yOffset)
+void Camera::CameraScrollInput(double yOffset)
 {
 	if (mode == ORBITAL)
 	{

@@ -7,12 +7,12 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
 void Mesh::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 {
-	Mesh::vertices = vertices;
-	Mesh::indices = indices;
+	meshVertices = vertices;
+	meshIndices = indices;
 
 	VAO.Bind();
-	VBO VBO(vertices);
-	EBO EBO(indices);
+	VBO VBO(meshVertices);
+	EBO EBO(meshIndices);
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(0));
 	VAO.LinkAttrib(VBO, 1, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 	VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(7 * sizeof(GLfloat)));
@@ -28,7 +28,7 @@ void Mesh::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 void Mesh::Draw(GLenum type)
 {
 	VAO.Bind();
-	glDrawElements(type, indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(type, meshIndices.size(), GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::Delete()

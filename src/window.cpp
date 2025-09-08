@@ -150,7 +150,7 @@ void Window::ScrollInput(double xOffset, double yOffset)
 {
     if (!io->WantCaptureMouse)
     {
-        camera.ScrollInput(yOffset);
+        camera.CameraScrollInput(yOffset);
     }
 }
 
@@ -282,6 +282,7 @@ void Window::ResetSimRate()
 void Window::RenderLoop() 
 {
     double prevTime = glfwGetTime();
+    double fpsPrevUpdateTime = prevTime;
     double accumulator = 0.0;
 
     while (!glfwWindowShouldClose(window))
@@ -297,7 +298,7 @@ void Window::RenderLoop()
         glfwPollEvents();
         if (!io->WantCaptureMouse)
         {
-            camera.CameraInputs(window);
+            camera.CameraMouseInput(window);
         }
 
         camera.UpdateMatrix(FOV, nearPlaneDist, farPlaneDist);

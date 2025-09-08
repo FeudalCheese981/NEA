@@ -6,23 +6,18 @@
 class Orbit: public Object
 {
     public:
-        int lineSegments;
+        int orbitLineSegments;
 
-        float semiMajorAxis;
-        float eccentricity;
-        float inclination;
-        float argumentOfPeriapsis;
-        float longitudeOfAscendingNode;
-        float epochOfPeriapsis;
+        float orbitSemiMajorAxis;
+        float orbitEccentricity;
+        float orbitInclination;
+        float orbitArgumentOfPeriapsis;
+        float orbitLongitudeOfAscendingNode;
+        float orbitEpochOfPeriapsis;
 
-        float apoapsis;
-        float periapsis;
-        float trueAnomoly;
-
-        std::vector<Vertex> vertices;
-        std::vector<GLuint> indices;
-
-        glm::vec4 lineColor;
+        float orbitApoapsis;
+        float orbitPeriapsis;
+        float orbitTrueAnomoly;
 
         Orbit
         (
@@ -33,7 +28,7 @@ class Orbit: public Object
             float argumentOfPeriapsis, 
             float longitudeOfAscendingNode, 
             float epochOfPeriapsis, 
-            glm::vec4 lineColor,
+            glm::vec4 color,
             glm::vec3 pos
         );
 

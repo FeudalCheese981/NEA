@@ -47,8 +47,9 @@ class Camera
 		void ScreenSizeUpdate(int width, int height);
 		void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 		void Matrix(Shader& shader, const char* uniform);
-		void CameraInputs(GLFWwindow* window);
-		void ScrollInput(double yOffset);
+		void CameraKeyInput(GLFWwindow* window);
+		void CameraMouseInput(GLFWwindow* window);
+		void CameraScrollInput(double yOffset);
 		void ChangeMode();
 		void ResetCamera();
 };

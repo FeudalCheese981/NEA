@@ -12,20 +12,20 @@ Sphere::Sphere
 	glm::vec3 pos,
 	unsigned int colorMode
 ):
-Object(pos, GL_TRIANGLES)
+Object(color, pos, GL_TRIANGLES)
 {
     sphereRadius = radius;
     sphereSegments = segments;
     sphereRings = rings;
-	sphereColor = color;
 	sphereColorMode = colorMode;
     GenerateIndices();
     GenerateVertices();
-    Update(vertices, indices);
+    Update();
 }
 
 void Sphere::GenerateVertices()
 {
+	objectVertices = {};
     for (int i = 0; i <= sphereRings; ++i)
 	{
 		float phi = M_PI * static_cast<float>(i) / static_cast<float>(sphereRings);
@@ -49,17 +49,18 @@ void Sphere::GenerateVertices()
 					1.0f
 				);
 			}
-			else vertexColor = sphereColor;
+			else vertexColor = objectColor;
 
 			glm::vec3 positon = glm::vec3(x, y, z);
 			glm::vec3 normal = glm::normalize(positon);
-			vertices.push_back(Vertex{ positon, vertexColor, normal });
+			objectVertices.push_back(Vertex{ positon, vertexColor, normal });
 		}
 	}
 }
 
 void Sphere::GenerateIndices()
 {
+	objectIndices = {};
     for (int y = 0; y < sphereRings; ++y)
 	{
 		for (int x = 0; x < sphereSegments; ++x)
@@ -69,13 +70,13 @@ void Sphere::GenerateIndices()
 			int i2 = i0 + (sphereSegments + 1);
 			int i3 = i2 + 1;
 
-			indices.push_back(i0);
-			indices.push_back(i1);
-			indices.push_back(i2);
+			objectIndices.push_back(i0);
+			objectIndices.push_back(i1);
+			objectIndices.push_back(i2);
 
-			indices.push_back(i1);
-			indices.push_back(i3);
-			indices.push_back(i2);
+			objectIndices.push_back(i1);
+			objectIndices.push_back(i3);
+			objectIndices.push_back(i2);
 		}
 	}
 }

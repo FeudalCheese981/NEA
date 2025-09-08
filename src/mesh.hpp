@@ -10,9 +10,9 @@ class Mesh
 {
 	public:
 		// Vector containing vertex info
-		std::vector<Vertex> vertices;
+		std::vector<Vertex> meshVertices;
 		// Vector containing indices
-		std::vector<GLuint> indices;
+		std::vector<GLuint> meshIndices;
 		// VAO 
 		VAO VAO;
 

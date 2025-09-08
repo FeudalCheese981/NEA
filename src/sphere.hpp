@@ -12,7 +12,6 @@ class Sphere: public Object
         int sphereSegments;
         int sphereRings;
 
-        glm::vec4 sphereColor;
         unsigned int sphereColorMode;
 
         Sphere

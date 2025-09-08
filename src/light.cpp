@@ -17,7 +17,7 @@ void Light::Draw(Shader& shader, Camera& camera, float thickness)
     glUniform4f(glGetUniformLocation(shader.ID, "lightColor"), sphereColor.x, sphereColor.y, sphereColor.z, sphereColor.w);
     camera.Matrix(shader, "camMatrix");
 
-    objectMesh.Draw(drawType);
+    objectMesh.Draw(objectDrawType);
 }
 
 void Light::SendLightInfoToShader(Shader& shader)

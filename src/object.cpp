@@ -1,12 +1,12 @@
 #include "object.hpp"
 
-Object::Object(glm::vec3 objectPos, GLenum drawType): objectMesh(vertices, indices)
+Object::Object(glm::vec4 color, glm::vec3 pos, GLenum drawType): objectMesh(objectVertices, objectIndices)
 {
-    Object::vertices = {};
-    Object::indices = {};
-    Object::objectPos = objectPos;
-    Object::objectModel = glm::mat4(1.0f);
-    Object::drawType = drawType;
+    objectColor = color;
+    objectPos = pos;
+    objectModel = glm::mat4(1.0f);
+    objectModel = glm::translate(objectModel, objectPos);
+    objectDrawType = drawType;
 }
 
 void Object::Place()
@@ -15,11 +15,9 @@ void Object::Place()
     objectModel = glm::translate(objectModel, objectPos);
 }
 
-void Object::Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
+void Object::Update()
 {
-    Object::vertices = vertices;
-    Object::indices = indices;
-    objectMesh.Update(vertices, indices);
+    objectMesh.Update(objectVertices, objectIndices);
 }
 
 void Object::Draw(Shader& shader, Camera& camera, float thickness)
@@ -32,7 +30,7 @@ void Object::Draw(Shader& shader, Camera& camera, float thickness)
 
     glLineWidth(thickness);
     glPointSize(thickness);
-    objectMesh.Draw(drawType);
+    objectMesh.Draw(objectDrawType);
     glLineWidth(1.0f);
     glPointSize(1.0f);
 }

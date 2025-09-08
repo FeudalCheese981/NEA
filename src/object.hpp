@@ -6,20 +6,21 @@
 class Object
 {
     public:
-        std::vector<Vertex> vertices;
-        std::vector<GLuint> indices;
+        std::vector<Vertex> objectVertices = {};
+        std::vector<GLuint> objectIndices = {};
 
         Mesh objectMesh;
 
+        glm::vec4 objectColor;
         glm::mat4 objectModel;
         glm::vec3 objectPos;
 
-        GLenum drawType;
+        GLenum objectDrawType;
 
-        Object(glm::vec3 objectPos, GLenum );
+        Object(glm::vec4 color, glm::vec3 pos, GLenum drawType);
 
         void Place();
-        void Update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+        void Update();
         void Draw(Shader& shader, Camera& camera, float thickness = 1.0f);
         void Delete();
 

@@ -10,6 +10,7 @@ class EBO
 	public:
 		// ID reference that OpenGl methods will use
 		GLuint ID;
+		
 		// Constructor takes in indices
 		EBO(std::vector<GLuint>& indices);
 
