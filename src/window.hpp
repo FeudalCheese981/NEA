@@ -56,6 +56,7 @@ class Window
         bool multisample = true;
         bool wireframeMode = false;
         bool faceCulling = true;
+        bool displayFPS = false;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;
