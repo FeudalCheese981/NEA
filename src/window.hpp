@@ -50,19 +50,24 @@ class Window
     
         double simRate = DEFAULT_SIM_RATE;
         double simTime = 0.0;
-        double deltaTime = DEFAULT_SIM_RATE;
+        double deltaTime = DEFAULT_DELTA_T;
+        double frameTime = 0.0;
+        double runTime = 0.0;
 
         bool fullscreen = false;
         bool multisample = true;
         bool wireframeMode = false;
         bool faceCulling = true;
         bool displayFPS = false;
+        bool displaySimInfo = false;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;
 
         std::unique_ptr<Light> sun;
         std::unique_ptr<Sphere> planet; 
+
+        ImGuiIO* io = nullptr;
 
         /*
         // shader
@@ -146,6 +151,10 @@ class Window
 
         void EnableFaceCulling();
         void DisableFaceCulling();
+
+        void IncreaseSimRate();
+        void DecreaseSimRate();
+        void ResetSimRate();
 
         void RenderLoop();
 

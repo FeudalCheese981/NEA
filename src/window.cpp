@@ -52,13 +52,16 @@ void Window::Initialize()
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+    io = &ImGui::GetIO();
+    ImGui::GetStyle();
+    ImGui::StyleColorsDark();
+    io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io->Fonts->AddFontFromFileTTF("fonts/dejavu-sans/DejavuSans-MdPB.ttf", 14.0f);
+    
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
-    
+
     glEnable(GL_MULTISAMPLE);
 
     glEnable(GL_DEPTH_TEST);
@@ -105,35 +108,50 @@ void Window::ResizeWindow(int width, int height)
 void Window::KeyInput(int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
-	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-		if (!fullscreen)
-		{
-			glfwGetWindowPos(window, &windowXPos, &windowYPos);
-			glfwGetWindowSize(window, &windowWidth, &windowHeight);
-			glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
-			fullscreen = true;
-		}
-		else
-		{
-			glfwSetWindowMonitor(window, NULL, windowXPos, windowYPos, windowWidth, windowHeight, GLFW_DONT_CARE);
-			fullscreen = false;
-		}
-	}
+    {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        if (!fullscreen)
+        {
+            glfwGetWindowPos(window, &windowXPos, &windowYPos);
+            glfwGetWindowSize(window, &windowWidth, &windowHeight);
+            glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+            fullscreen = true;
+        }
+        else
+        {
+            glfwSetWindowMonitor(window, NULL, windowXPos, windowYPos, windowWidth, windowHeight, GLFW_DONT_CARE);
+            fullscreen = false;
+        }
+    }
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
-	{
-		camera.ChangeMode();
-	}
-	if (key == GLFW_KEY_C && action == GLFW_PRESS)
-	{
-		camera.ResetCamera();
-	}
+    {
+        camera.ChangeMode();
+    }
+    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    {
+        camera.ResetCamera();
+    }
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+    {
+        IncreaseSimRate();
+    }
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+    {
+        DecreaseSimRate();
+    }
+    if (key == GLFW_KEY_HOME && action == GLFW_PRESS)
+    {
+        ResetSimRate();
+    }
 }
 
 void Window::ScrollInput(double xOffset, double yOffset)
 {
-    camera.ScrollInput(yOffset);
+    if (!io->WantCaptureMouse)
+    {
+        camera.ScrollInput(yOffset);
+    }
 }
 
 void Window::OpenSaveFiles() {}
@@ -177,7 +195,7 @@ void Window::DrawUI()
         }
         if (ImGui::BeginMenu("Debug"))
         {
-			ImGui::SeperatorText("Draw Debug");
+			ImGui::SeparatorText("Draw Debug");
             if (ImGui::MenuItem("Wireframe Mode", "", &wireframeMode))
 			{
 				if (wireframeMode) EnableWireframeMode();
@@ -188,11 +206,33 @@ void Window::DrawUI()
 				if (faceCulling) EnableFaceCulling();
 				else DisableFaceCulling();
 			}
-			ImGui::SeperatorText("Context Debug");
-			if (ImGui::MenuItem("Display FPS", "", &displayFPS)) {}
+			ImGui::SeparatorText("Context Debug");
+			ImGui::MenuItem("Display FPS", "", &displayFPS);
+            ImGui::MenuItem("Display Sim Info", "", &displaySimInfo);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
+    }
+    if (displayFPS)
+    {
+        if (ImGui::Begin("FPS stats", &displayFPS))
+        {
+            ImGui::Text(("FPS: " + std::to_string(1.0 / frameTime)).c_str());
+            ImGui::End();
+        }
+        // else ImGui::End();
+    }
+    if (displaySimInfo)
+    {
+        if (ImGui::Begin("Sim Info", &displaySimInfo))
+        {
+            ImGui::Text("Sim Rate: %.2fX", simRate);
+            ImGui::Text("Sim Time: %.2fs", simTime);
+            ImGui::Separator();
+            ImGui::Text("ΔT: %.fs", deltaTime);
+            ImGui::Text("Run Time: %.2fs", runTime);
+            ImGui::End();
+        }
     }
 }
 
@@ -216,6 +256,29 @@ void Window::DisableFaceCulling()
     glDisable(GL_CULL_FACE);
 }
 
+void Window::IncreaseSimRate()
+{
+    double newSimRate = simRate * 10.0;
+    if (newSimRate <= 1000000.0)
+    {
+        simRate = newSimRate;
+    }
+}
+
+void Window::DecreaseSimRate()
+{
+    double newSimRate = simRate / 10.0;
+    if (newSimRate >= 1.0)
+    {
+        simRate = newSimRate;
+    }
+}
+
+void Window::ResetSimRate()
+{
+    simRate = 1.0;
+}
+
 void Window::RenderLoop() 
 {
     double prevTime = glfwGetTime();
@@ -232,15 +295,20 @@ void Window::RenderLoop()
 		
         // Input polling and UI
         glfwPollEvents();
-        camera.CameraInputs(window);
+        if (!io->WantCaptureMouse)
+        {
+            camera.CameraInputs(window);
+        }
+
         camera.UpdateMatrix(FOV, nearPlaneDist, farPlaneDist);
         DrawUI();
 
         // calculate time deltas for physics
         double crntTime = glfwGetTime();
-        double frameTime = crntTime - prevTime;
+        frameTime = crntTime - prevTime;
         prevTime = crntTime;
         accumulator += frameTime;
+        runTime += frameTime;
 
         // physics updater
         while (accumulator >= deltaTime)
