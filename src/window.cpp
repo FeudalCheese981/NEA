@@ -187,12 +187,15 @@ void Window::DrawUI()
     {
         if (ImGui::BeginMenu("File"))
         {
+            ImGui::MenuItem("Contols", "", &displayControls);
             if (ImGui::MenuItem("Quit", "Alt+F4"))
             {
                 glfwSetWindowShouldClose(window, true);
             }
+
             ImGui::EndMenu();
         }
+
         if (ImGui::BeginMenu("Debug"))
         {
 			ImGui::SeparatorText("Draw Debug");
@@ -209,19 +212,24 @@ void Window::DrawUI()
 			ImGui::SeparatorText("Context Debug");
 			ImGui::MenuItem("Display FPS", "", &displayFPS);
             ImGui::MenuItem("Display Sim Info", "", &displaySimInfo);
+            
             ImGui::EndMenu();
         }
+
         ImGui::EndMainMenuBar();
     }
+
     if (displayFPS)
     {
         if (ImGui::Begin("FPS stats", &displayFPS))
         {
-            ImGui::Text(("FPS: " + std::to_string(1.0 / frameTime)).c_str());
-            ImGui::End();
+            ImGui::Text("Current FPS: %.2f", currentFPS);
+            ImGui::Text("Average FPS: %.2f", averageFPS);
+            ImGui::Text("Min FPS: %.2f", minFps);
         }
-        // else ImGui::End();
+        ImGui::End();
     }
+
     if (displaySimInfo)
     {
         if (ImGui::Begin("Sim Info", &displaySimInfo))
@@ -231,8 +239,33 @@ void Window::DrawUI()
             ImGui::Separator();
             ImGui::Text("ΔT: %.fs", deltaTime);
             ImGui::Text("Run Time: %.2fs", runTime);
-            ImGui::End();
         }
+        ImGui::End();
+    }
+
+    if (displayControls)
+    {
+        if (ImGui::Begin("Controls", &displayControls))
+        {
+            ImGui::SeparatorText("Camera Controls");
+            ImGui::Text("Reset Camera:"); ImGui::SameLine(); ImGui::TextDisabled("C");
+            ImGui::Text("Change Camera Mode:"); ImGui::SameLine(); ImGui::TextDisabled("v");
+            ImGui::Text("Look around:"); ImGui::SameLine(); ImGui::TextDisabled("Hold Left Click");
+            ImGui::SeparatorText("Movement Controls");
+            ImGui::TextDisabled("(Only in free camera mode)");
+            ImGui::Text("Forward:"); ImGui::SameLine(); ImGui::TextDisabled("W");
+            ImGui::Text("Left:"); ImGui::SameLine(); ImGui::TextDisabled("A");
+            ImGui::Text("Backward:"); ImGui::SameLine(); ImGui::TextDisabled("S");
+            ImGui::Text("Right:"); ImGui::SameLine(); ImGui::TextDisabled("D");
+            ImGui::Text("Up:"); ImGui::SameLine(); ImGui::TextDisabled("Space");
+            ImGui::Text("Down:"); ImGui::SameLine(); ImGui::TextDisabled("Ctrl");
+            ImGui::Text("Speed:"); ImGui::SameLine(); ImGui::TextDisabled("Shift");
+            ImGui::SeparatorText("Sim Controls");
+            ImGui::Text("Increase Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Up");
+            ImGui::Text("Decrease Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Down");
+            ImGui::Text("Reset Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Home");
+        }
+        ImGui::End();
     }
 }
 
@@ -307,10 +340,32 @@ void Window::RenderLoop()
 
         // calculate time deltas for physics
         double crntTime = glfwGetTime();
+        double fpsCrntUpdateTime = crntTime;
         frameTime = crntTime - prevTime;
         prevTime = crntTime;
         accumulator += frameTime;
         runTime += frameTime;
+
+        fpsTrack.push_back(1.0 / frameTime);
+        if (fpsTrack.size() > 30)
+        {
+            fpsTrack.erase(fpsTrack.begin());
+        }
+
+        if (fpsCrntUpdateTime - fpsPrevUpdateTime >= 1.0 / 30.0)
+        {
+            currentFPS = 1.0 / frameTime;
+            double total = 0.0;
+            for (int i = 0; i < 30; i++)
+            {
+                total += fpsTrack[i];
+            }
+            averageFPS = total / 30;
+            if (minFps == -1.0) minFps = 1.0 / frameTime;
+            else if ((1.0 / frameTime) < minFps) minFps = 1.0 / frameTime;
+
+            fpsPrevUpdateTime = fpsCrntUpdateTime;
+        }
 
         // physics updater
         while (accumulator >= deltaTime)

@@ -60,12 +60,18 @@ class Window
         bool faceCulling = true;
         bool displayFPS = false;
         bool displaySimInfo = false;
+        bool displayControls = true;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;
 
         std::unique_ptr<Light> sun;
         std::unique_ptr<Sphere> planet; 
+
+        std::vector<double> fpsTrack;
+        double currentFPS = 0.0;
+        double averageFPS = 0.0;
+        double minFps = -1.0;
 
         ImGuiIO* io = nullptr;
 
