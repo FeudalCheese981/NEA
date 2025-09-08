@@ -41,7 +41,7 @@ class Window
         std::vector<Object> objects;
         std::vector<Shader> shaders;
 
-        int MSAAsamples = DEFAULT_MSAA_SAMPLES;
+        int anitAiliasingSamples = DEFAULT_MSAA_SAMPLES;
         int segmentCount = DEFAULT_SEGMENT_COUNT;
 
         float FOV = DEFAULT_FOV;
@@ -61,6 +61,7 @@ class Window
         bool displayFPS = false;
         bool displaySimInfo = false;
         bool displayControls = true;
+        bool displaySettings = false;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;

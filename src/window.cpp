@@ -27,7 +27,7 @@ void Window::Initialize()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
     glfwWindowHint(GLFW_OPENGL_PROFILE, OPENGL_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, MSAAsamples);
+    glfwWindowHint(GLFW_SAMPLES, anitAiliasingSamples);
 
     window = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
     if (!window)
@@ -188,6 +188,9 @@ void Window::DrawUI()
         if (ImGui::BeginMenu("File"))
         {
             ImGui::MenuItem("Contols", "", &displayControls);
+            ImGui::MenuItem("Settings", "", &displaySettings);
+
+            ImGui::Separator();
             if (ImGui::MenuItem("Quit", "Alt+F4"))
             {
                 glfwSetWindowShouldClose(window, true);
@@ -264,6 +267,15 @@ void Window::DrawUI()
             ImGui::Text("Increase Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Up");
             ImGui::Text("Decrease Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Down");
             ImGui::Text("Reset Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Home");
+        }
+        ImGui::End();
+    }
+
+    if (displaySettings)
+    {
+        if (ImGui::Begin("Settings", &displaySettings))
+        {
+            ImGui::SeparatorText("Graphics Settings");
         }
         ImGui::End();
     }
