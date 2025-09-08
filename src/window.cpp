@@ -300,6 +300,7 @@ void Window::RenderLoop()
         {
             camera.CameraMouseInput(window);
         }
+        camera.CameraKeyInput(window);
 
         camera.UpdateMatrix(FOV, nearPlaneDist, farPlaneDist);
         DrawUI();
