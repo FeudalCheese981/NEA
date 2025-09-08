@@ -177,16 +177,19 @@ void Window::DrawUI()
         }
         if (ImGui::BeginMenu("Debug"))
         {
+			ImGui::SeperatorText("Draw Debug");
             if (ImGui::MenuItem("Wireframe Mode", "", &wireframeMode))
-            {
-                if (wireframeMode) DisableWireframeMode();
-                else EnableWireframeMode();
-            }
+			{
+				if (wireframeMode) EnableWireframeMode();
+        		else DisableWireframeMode();
+			}
             if (ImGui::MenuItem("Face culling", "", &faceCulling))
-            {
-                if (faceCulling) DisableFaceCulling();
-                else EnableFaceCulling();
-            }
+			{
+				if (faceCulling) EnableFaceCulling();
+				else DisableFaceCulling();
+			}
+			ImGui::SeperatorText("Context Debug");
+			if (ImGui::MenuItem("Display FPS", "", &displayFPS)) {}
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -222,10 +225,11 @@ void Window::RenderLoop()
     {
         // clear buffers and tell imgui this is a new frame
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        ImGui_ImplOpenGL3_NewFrame();
+		
+		ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+		
         // Input polling and UI
         glfwPollEvents();
         camera.CameraInputs(window);
