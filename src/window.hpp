@@ -61,7 +61,6 @@ class Window
         bool displayFPS = false;
         bool displaySimInfo = false;
         bool displayControls = true;
-        bool displaySettings = false;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;

@@ -188,7 +188,6 @@ void Window::DrawUI()
         if (ImGui::BeginMenu("File"))
         {
             ImGui::MenuItem("Contols", "", &displayControls);
-            ImGui::MenuItem("Settings", "", &displaySettings);
 
             ImGui::Separator();
             if (ImGui::MenuItem("Quit", "Alt+F4"))
@@ -267,15 +266,6 @@ void Window::DrawUI()
             ImGui::Text("Increase Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Up");
             ImGui::Text("Decrease Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Down");
             ImGui::Text("Reset Sim Rate:"); ImGui::SameLine(); ImGui::TextDisabled("Home");
-        }
-        ImGui::End();
-    }
-
-    if (displaySettings)
-    {
-        if (ImGui::Begin("Settings", &displaySettings))
-        {
-            ImGui::SeparatorText("Graphics Settings");
         }
         ImGui::End();
     }
