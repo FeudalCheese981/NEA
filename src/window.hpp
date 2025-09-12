@@ -2,12 +2,13 @@
 #define WINDOW_HPP
 
 #include <memory>
+#include <algorithm>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "orbit.hpp"
+#include "orbitLine.hpp"
 #include "sphere.hpp"
 #include "light.hpp"
 #include "grid.hpp"
@@ -23,6 +24,23 @@ const double DEFAULT_SIM_RATE = 1.0;
 const double DEFAULT_DELTA_T = 1.0 / 1000.0;
 
 enum ObjectType { SPHERE, LIGHT, ORBIT, GRID };
+
+struct LaunchUI
+{
+    bool isOpen = true;
+    float launchSiteLatitude_Degrees = 0.0f;
+    float launchSiteLongitude_Degrees = 0.0f;
+    float launchAzimuth_Degrees = 0.0f;
+    float MecoAltitude_km = 100.0f;
+    float MecoVelocity_ms = 7900.0f;
+    float MecoDownrangeDistance_km = 0.0f;
+    float MecoFlightPathAngle_Degrees = 0.0f;
+};
+
+struct objectInfo
+{
+
+};
 
 class Window
 {
@@ -61,66 +79,24 @@ class Window
         bool displayFPS = false;
         bool displaySimInfo = false;
         bool displayControls = true;
+        bool displayLaunch = false;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;
+        std::unique_ptr<Shader> lineShader;
 
         std::unique_ptr<Light> sun;
         std::unique_ptr<Sphere> planet; 
+        std::unique_ptr<OrbitLine> orbit1;
 
         std::vector<double> fpsTrack;
         double currentFPS = 0.0;
         double averageFPS = 0.0;
         double minFps = -1.0;
 
+        std::vector<LaunchUI> launchUiWindows;
+
         ImGuiIO* io = nullptr;
-
-        /*
-        // shader
-        Shader lineShader = Shader("shaders\\line.vert", "shaders\\line.frag");
-        Shader lightShader = Shader("shaders\\light.vert", "shaders\\light.frag");
-        Shader objectShader = Shader("shaders\\object.vert", "shaders\\object.frag");
-
-        // planet
-        Sphere planet(1.0f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(0.5f, 0.75f, 0.75f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
-        planet.Place();
-        
-        Sphere moon(0.27f, SEGMENT_COUNT, SEGMENT_COUNT / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -60.2696f, 0.0f), SPHERE_COLOR_DEFAULT);
-        moon.Place();
-
-        // orbit
-        Orbit orbitLine
-        (
-            SEGMENT_COUNT,
-            2.95035f,
-            0.6504292532066034f,
-            glm::radians(63.940270121756825f),
-            glm::radians(32.1116423594561f),
-            glm::radians(-96.06445668472178f),
-            0.0f,
-            glm::vec4(0.36f, 0.22f, 0.82f, 1.0f),
-            glm::vec3(0.0f, 0.0f, 0.0f)
-        );
-        orbitLine.Place();
-        
-        // grid
-        Grid gridDark(1000.0f, 100, glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        gridDark.Place();
-
-        Grid gridBright(1000.0f, 10, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        gridBright.Place();
-
-        Grid gridFull(1000.0f, 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        gridFull.Place();
-
-        // light
-        glm::vec3 sunPos = glm::vec3(0.0f, -23544.2f, 0.0f);
-        // sunPos = glm::rotate(sunPos, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-        Light sun(109.3f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), sunPos);
-        sun.Place();
-        sun.SendLightInfoToShader(objectShader);
-        */
 
         Window
         (

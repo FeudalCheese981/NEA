@@ -1,9 +1,9 @@
-#ifndef ORBIT_HPP
-#define ORBIT_HPP
+#ifndef ORBIT_LINE_HPP
+#define ORBIT_LINE_HPP
 
 #include "object.hpp"
 
-class Orbit: public Object
+class OrbitLine: public Object
 {
     public:
         int orbitLineSegments;
@@ -13,23 +13,22 @@ class Orbit: public Object
         float orbitInclination;
         float orbitArgumentOfPeriapsis;
         float orbitLongitudeOfAscendingNode;
-        float orbitEpochOfPeriapsis;
 
         float orbitApoapsis;
         float orbitPeriapsis;
         float orbitTrueAnomoly;
 
-        Orbit
+        OrbitLine
         (
             int lineSegments,
             float semiMajorAxis, 
             float eccentricity, 
             float inclination, 
             float argumentOfPeriapsis, 
-            float longitudeOfAscendingNode, 
-            float epochOfPeriapsis, 
+            float longitudeOfAscendingNode,
             glm::vec4 color,
-            glm::vec3 pos
+            glm::vec3 pos,
+            GLenum drawType
         );
 
         void GenerateVertices() override;

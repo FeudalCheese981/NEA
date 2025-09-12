@@ -1,9 +1,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "orbit.hpp"
+#include "orbitLine.hpp"
 
-Orbit::Orbit
+OrbitLine::OrbitLine
 (
     int lineSegments,
     float semiMajorAxis,
@@ -11,11 +11,11 @@ Orbit::Orbit
     float inclination,
     float argumentOfPeriapsis,
     float longitudeOfAscendingNode,
-    float epochOfPeriapsis,
     glm::vec4 color,
-    glm::vec3 pos
+    glm::vec3 pos,
+    GLenum drawType
 ):
-Object(color, pos, GL_LINE_STRIP)
+Object(color, pos, drawType)
 {
     orbitLineSegments = lineSegments;
     orbitSemiMajorAxis = semiMajorAxis;
@@ -23,7 +23,6 @@ Object(color, pos, GL_LINE_STRIP)
     orbitInclination = inclination;
     orbitArgumentOfPeriapsis = argumentOfPeriapsis;
     orbitLongitudeOfAscendingNode = longitudeOfAscendingNode;
-    orbitEpochOfPeriapsis = epochOfPeriapsis;
     orbitApoapsis = semiMajorAxis * (1 - eccentricity);
     orbitPeriapsis = semiMajorAxis * (1 * eccentricity);
     GenerateVertices();
@@ -31,7 +30,7 @@ Object(color, pos, GL_LINE_STRIP)
     Update();
 }
 
-void Orbit::GenerateVertices()
+void OrbitLine::GenerateVertices()
 {
     objectVertices = {};
     for (int i = 0; i <= orbitLineSegments; ++i)
@@ -49,7 +48,7 @@ void Orbit::GenerateVertices()
     }
 }
 
-void Orbit::GenerateIndices()
+void OrbitLine::GenerateIndices()
 {
     objectIndices = {};
     for (int i = 0; i <= orbitLineSegments; ++i)

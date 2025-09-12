@@ -14,7 +14,7 @@
                 "src/VAO.cpp",
                 "src/EBO.cpp",
                 "src/mesh.cpp",
-                "src/orbit.cpp",
+                "src/orbitLine.cpp",
                 "src/object.cpp",
                 "src/sphere.cpp",
                 "src/grid.cpp",

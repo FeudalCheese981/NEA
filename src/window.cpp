@@ -1,3 +1,6 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "window.hpp"
 
 Window::Window
@@ -76,12 +79,26 @@ void Window::Initialize()
     
     lightShader = std::make_unique<Shader>("shaders\\light.vert", "shaders\\light.frag");
     shaderProgram = std::make_unique<Shader>("shaders\\object.vert", "shaders\\object.frag");
+    lineShader = std::make_unique<Shader>("shaders\\line.vert", "shaders\\line.frag");
     sun = std::make_unique<Light>(109.0f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), glm::vec3(0.0f, -23544.2f, 0.0f));
     planet = std::make_unique<Sphere>(1.0f, segmentCount, segmentCount / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
+    orbit1 = std::make_unique<OrbitLine>(
+            segmentCount,
+            2.95035f,
+            0.6504292532066034f,
+            glm::radians(63.940270121756825f),
+            glm::radians(32.1116423594561f),
+            glm::radians(-96.06445668472178f),
+            0.0f,
+            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            GL_LINES
+        );
 
     sun->Place();
     sun->SendLightInfoToShader(*shaderProgram);
     planet->Place();
+    orbit1->Place();
 }
 
 void Window::Terminate() 
@@ -165,6 +182,7 @@ void Window::DrawObjects()
 {
     sun->Draw(*lightShader, camera);
     planet->Draw(*shaderProgram, camera);
+    orbit1->Draw(*lineShader, camera, 3.0f);
 }
 
 void Window::DeleteObject()
@@ -215,6 +233,16 @@ void Window::DrawUI()
 			ImGui::MenuItem("Display FPS", "", &displayFPS);
             ImGui::MenuItem("Display Sim Info", "", &displaySimInfo);
             
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Launch"))
+        {
+            if (ImGui::MenuItem("New Launch"))
+            {
+                launchUiWindows.push_back(LaunchUI{});
+            }
+
             ImGui::EndMenu();
         }
 
@@ -269,6 +297,64 @@ void Window::DrawUI()
         }
         ImGui::End();
     }
+
+    if (ImGui::Begin("Orbit"))
+    {
+        ImGui::SliderFloat("Eccentricity", &orbit1->orbitEccentricity, 0.0f, 1.0f);
+        ImGui::SliderFloat("Semi-major axis", &orbit1->orbitSemiMajorAxis, 0.0f, 100.0f);
+        ImGui::SliderFloat("Longitude of Ascending Node", &orbit1->orbitLongitudeOfAscendingNode, - M_PI, M_PI);
+        ImGui::SliderFloat("Inclination",&orbit1->orbitInclination, 0.0f, 2 * M_PI);
+        ImGui::SliderFloat("Argument of Periapsis", &orbit1->orbitArgumentOfPeriapsis, - M_PI, M_PI);
+
+        orbit1->GenerateVertices();
+        orbit1->GenerateIndices();
+        orbit1->Update();
+    }
+    ImGui::End();
+
+    // Launch UI
+    for (int i =0; i < launchUiWindows.size(); i++)
+    {
+        LaunchUI& launchUI = launchUiWindows[i];
+        const char* launchUiTitle = ("Launch##" + std::to_string(i + 1)).c_str();
+        if (launchUI.isOpen)
+        {
+            if (ImGui::Begin(launchUiTitle, &launchUI.isOpen))
+            {
+                ImGui::SeparatorText("Launch");
+                ImGui::Text("Launch Longitude:");
+                ImGui::InputFloat("##Longitude", &launchUI.launchSiteLongitude_Degrees);
+                ImGui::Text("Launch Latitude:");
+                ImGui::InputFloat("##Latitude", &launchUI.launchSiteLatitude_Degrees);
+                ImGui::Text("Launch Azimuth:");
+                ImGui::InputFloat("##Azimuth", &launchUI.launchAzimuth_Degrees);
+                ImGui::SeparatorText("MECO");
+                ImGui::Text("Altiutude:");
+                ImGui::InputFloat("##Altitude", &launchUI.MecoAltitude_km);
+                ImGui::Text("Velocity:");
+                ImGui::InputFloat("##Velocity", &launchUI.MecoVelocity_ms);
+                ImGui::Text("Downrange Distance:");
+                ImGui::InputFloat("##Distance", &launchUI.MecoDownrangeDistance_km);
+                ImGui::Text("Flight Path Angle:");
+                ImGui::InputFloat("##FPA", &launchUI.MecoFlightPathAngle_Degrees);
+                ImGui::Separator();
+                ImGui::Button("Launch!");
+            }
+            ImGui::End();
+        }
+    }
+
+    // Removing UIs from memory once closed
+    launchUiWindows.erase
+    (
+        std::remove_if
+        (
+            launchUiWindows.begin(),
+            launchUiWindows.end(),
+            [](const LaunchUI& launchUI){return !launchUI.isOpen;}
+        ),
+        launchUiWindows.end()
+    );
 }
 
 void Window::EnableWireframeMode()
