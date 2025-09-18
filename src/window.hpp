@@ -12,6 +12,7 @@
 #include "sphere.hpp"
 #include "light.hpp"
 #include "grid.hpp"
+#include "satellite.hpp"
 
 const unsigned int OPENGL_VERSION_MAJOR = 4; // OpenGL version 4.6 core
 const unsigned int OPENGL_VERSION_MINOR = 6;
@@ -80,6 +81,7 @@ class Window
         bool displaySimInfo = false;
         bool displayControls = true;
         bool displayLaunch = false;
+        bool paused = false;
 
         std::unique_ptr<Shader> lightShader;
         std::unique_ptr<Shader> shaderProgram;
@@ -88,6 +90,9 @@ class Window
         std::unique_ptr<Light> sun;
         std::unique_ptr<Sphere> planet; 
         std::unique_ptr<OrbitLine> orbit1;
+
+        std::unique_ptr<Satellite> sat1;
+        std::unique_ptr<Sphere> sat1Object;
 
         std::vector<double> fpsTrack;
         double currentFPS = 0.0;
@@ -137,6 +142,9 @@ class Window
         void IncreaseSimRate();
         void DecreaseSimRate();
         void ResetSimRate();
+
+        void Pause();
+        void Resume();
 
         void RenderLoop();
 

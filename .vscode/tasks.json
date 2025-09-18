@@ -19,8 +19,8 @@
                 "src/sphere.cpp",
                 "src/grid.cpp",
                 "src/light.cpp",
+                "src/satellite.cpp",
                 "src/window.cpp",
-
                 "imgui/imgui.cpp",
                 "imgui/imgui_demo.cpp",
                 "imgui/imgui_draw.cpp",

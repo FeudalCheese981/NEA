@@ -4,13 +4,17 @@
 #include <cmath>
 #include <string>
 
-const float G = 6.67e-11;
+const float G = 6.67e-11f;
+
+float wrapTwoPi(float angleRadians);
 
 class Satellite
 {
     public:
         const char* satelliteName;
         float satelliteMass;
+        float satelliteParentMass;
+        float satelliteParentRadius;
         float mu; // standard gravitational parameter
 
         // six orbital parameters
@@ -22,31 +26,47 @@ class Satellite
         float satelliteTimeOfPeriapsisPassage;
 
         // other orbital information
-        float satelliteApoapsis;
-        float satellitePeriapsis;
+        float satelliteApoapsisDistance;
+        float satellitePeriapsisDistance;
+        float satelliteApoapsisAltitude;
+        float satellitePeriapsisAltitude;
         float satelliteOrbitalPeriod;
         float satelliteMeanMotion;
         float satelliteMeanAnomaly;
-        float satelliteTrueAnomaly;
         float satelliteEccentricAnomaly;
 
-        Satellite(const char* name, float mass);
+        // satellite position, velocity and fpa
+        float satelliteTrueAnomaly;
+        float satelliteDistance;
+        float satelliteVelocity;
+        float satelliteFlightPathAngle;
 
-        void NewPrimaryBody(float mass);
+        float satelliteXPos;
+        float satelliteYPos;
+        float satelliteZPos;
+        
+
+        Satellite
+        (
+            const char* name,
+            float mass,
+            float parentMass,
+            float parentRadius
+        );
+
         void CalculateOrbitalParameters
         (
-            float launchLongitude,
-            float launchLatitude,
-            float launchAzimuth,
-            float mecoAltitude,
-            float mecoVelocity,
-            float mecoDistance,
-            float mecoFPA
+            float longitude,
+            float latitude,
+            float azimuth,
+            float altitude,
+            float velocity,
+            float distance,
+            float FPA,
+            float time
         );
         
-        void CalculateAnomaly();
-        void updatePosition();
-
+        void UpdatePosition(float time);
 };
 
 #endif

@@ -13,6 +13,7 @@
 
 enum CameraMode { FREE, ORBITAL };
 const glm::vec3 DEFAULT_POS = glm::vec3(2.0f, 0.0f, 0.0f);
+const double CAMERA_DEFAULT_SPEED = 0.01;
 
 class Camera
 {
@@ -28,7 +29,7 @@ class Camera
 		glm::vec3 positionStoreOrbital;
 		glm::vec3 orientationStoreOrbital;
 
-		const float DEFAULT_SPEED = 0.01f;
+		
 		
 		bool firstClick = true;
 		double mouseClickX = 0.0;
@@ -37,7 +38,7 @@ class Camera
 		int windowWidth;
 		int windowHeight;
 
-		float speed = DEFAULT_SPEED;
+		float speed = CAMERA_DEFAULT_SPEED;
 		float sensitivity = 150.0f;
 
 		int mode = FREE;

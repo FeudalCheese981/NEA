@@ -82,23 +82,46 @@ void Window::Initialize()
     lineShader = std::make_unique<Shader>("shaders\\line.vert", "shaders\\line.frag");
     sun = std::make_unique<Light>(109.0f, 32, 16, glm::vec4(253.0f / 255.0f, 251.0f / 255.0f, 211.0f / 255.0f, 1.0f), glm::vec3(0.0f, -23544.2f, 0.0f));
     planet = std::make_unique<Sphere>(1.0f, segmentCount, segmentCount / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_RGB);
+
+    sat1 = std::make_unique<Satellite>(
+        "Satellite1",
+        10.0f,
+        5.97e24f,
+        6.38e6f
+    );
+    sat1Object = std::make_unique<Sphere>(0.05f, segmentCount, segmentCount / 2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_DEFAULT);
+
+    sat1->CalculateOrbitalParameters(
+        glm::radians(-80.650833f),
+        glm::radians(28.524167f),
+        glm::radians(30.0f),
+        1e5f,
+        1e4f,
+        0.0f,
+        0.0f,
+        simTime
+    );
+
     orbit1 = std::make_unique<OrbitLine>(
             segmentCount,
-            2.95035f,
-            0.6504292532066034f,
-            glm::radians(63.940270121756825f),
-            glm::radians(32.1116423594561f),
-            glm::radians(-96.06445668472178f),
-            0.0f,
+            sat1->satelliteSemiMajorAxis / 6.38e6f,
+            sat1->satelliteEccentricity,
+            sat1->satelliteInclination,
+            sat1->satelliteArgumentOfPeriapsis,
+            sat1->satelliteLongitudeOfAscendingNode,
             glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             GL_LINES
         );
 
+
     sun->Place();
     sun->SendLightInfoToShader(*shaderProgram);
     planet->Place();
     orbit1->Place();
+    sat1Object->Place();
+
+    std::cout << "T = " << sat1->satelliteOrbitalPeriod << "s\n";
 }
 
 void Window::Terminate() 
@@ -161,6 +184,19 @@ void Window::KeyInput(int key, int scancode, int action, int mods)
     {
         ResetSimRate();
     }
+    if (key == GLFW_KEY_PAUSE && action == GLFW_PRESS)
+    {
+        if (paused) 
+        {
+            paused = false;
+            Resume();
+        }
+        else 
+        {
+            paused = true;
+            Pause();   
+        }
+    }
 }
 
 void Window::ScrollInput(double xOffset, double yOffset)
@@ -176,13 +212,20 @@ void Window::LoadSaveFile(const char* filename) {}
 void Window::SaveSaveFile() {}
 
 void Window::AddObject(ObjectType type) {}
-void Window::UpdateObjects() {}
+
+void Window::UpdateObjects()
+{
+    sat1->UpdatePosition(static_cast<float>(simTime));
+    sat1Object->objectPos = glm::vec3(sat1->satelliteXPos / 6.38e6f, sat1->satelliteYPos / 6.38e6f, sat1->satelliteZPos / 6.38e6f);
+    sat1Object->Place();
+}
 
 void Window::DrawObjects()
 {
     sun->Draw(*lightShader, camera);
     planet->Draw(*shaderProgram, camera);
     orbit1->Draw(*lineShader, camera, 3.0f);
+    sat1Object->Draw(*shaderProgram, camera);
 }
 
 void Window::DeleteObject()
@@ -398,6 +441,16 @@ void Window::DecreaseSimRate()
 void Window::ResetSimRate()
 {
     simRate = 1.0;
+}
+
+void Window::Pause()
+{
+    simRate = 0.0;
+}
+
+void Window::Resume()
+{
+    ResetSimRate();
 }
 
 void Window::RenderLoop() 

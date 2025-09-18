@@ -18,7 +18,7 @@ void Camera::UpdateMatrix(float FOVdeg, float nearPlane, float farPlane)
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	view = glm::lookAt(position, position + orientation, up);
-	projection = glm::perspective(glm::radians(FOVdeg), ((float)windowWidth / (float)windowHeight), nearPlane, farPlane);
+	projection = glm::perspective(glm::radians(FOVdeg), (static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), nearPlane, farPlane);
 	
 	cameraMatrix = projection * view;
 }
@@ -64,11 +64,11 @@ void Camera::CameraKeyInput(GLFWwindow* window)
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
-			speed = DEFAULT_SPEED * 10;
+			speed = CAMERA_DEFAULT_SPEED * 10;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{
-			speed = DEFAULT_SPEED;
+			speed = CAMERA_DEFAULT_SPEED;
 		}
 	}
 }
