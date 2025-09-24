@@ -1,6 +1,6 @@
 # NEA Project
 
-Current Version: [v0.2-alpha](https://github.com/FeudalCheese981/NEA/releases)
+Current Version: [v0.3-alpha](https://github.com/FeudalCheese981/NEA/releases)
 
 OpenGL Version: **4.6 Core**
 
