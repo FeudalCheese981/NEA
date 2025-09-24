@@ -20,27 +20,30 @@ const unsigned int OPENGL_PROFILE = GLFW_OPENGL_CORE_PROFILE;
 const int DEFAULT_MSAA_SAMPLES = 8; // MSAA samples
 const int DEFAULT_SEGMENT_COUNT = 1024; // How smooth spheres/curves are drawn 
 const float DEFAULT_FOV = 45.0f;
-const float DEFAULT_RENDER_DISTANCE = 1000000.0f;
+const float DEFAULT_RENDER_DISTANCE = 1.0e12f;
 const double DEFAULT_SIM_RATE = 1.0;
 const double DEFAULT_DELTA_T = 1.0 / 1000.0;
+
+// planetary Info
+const float EARTH_MASS = 5.97e24;
+const float EARTH_RADIUS = 6.37e6;
 
 enum ObjectType { SPHERE, LIGHT, ORBIT, GRID };
 
 struct LaunchUI
 {
     bool isOpen = true;
-    float launchSiteLatitude_Degrees = 0.0f;
-    float launchSiteLongitude_Degrees = 0.0f;
-    float launchAzimuth_Degrees = 0.0f;
-    float MecoAltitude_km = 100.0f;
-    float MecoVelocity_ms = 7900.0f;
-    float MecoDownrangeDistance_km = 0.0f;
-    float MecoFlightPathAngle_Degrees = 0.0f;
-};
-
-struct objectInfo
-{
-
+    char name[30];
+    float mass_kg = 10.0f;
+    float radius = 0.01f;
+    float latitude_Degrees = 0.0f;
+    float longitude_Degrees = 0.0f;
+    float azimuth_Degrees = 90.0f;
+    float altitude_km = 100.0f;
+    float velocity_ms = 7900.0f;
+    float downrangeDistance_km = 0.0f;
+    float flightPathAngle_Degrees = 0.0f;
+    float color[3] = {1.0f, 1.0f, 1.0f};
 };
 
 class Window
@@ -48,31 +51,31 @@ class Window
     public:
         const char* windowTitle;
 
+        // window pointer
+        GLFWwindow* window;
+    
+        // Camera
+        Camera camera;
+
+        // Shaders
+        std::unique_ptr<Shader> lightShader;
+        std::unique_ptr<Shader> objectShader;
+        std::unique_ptr<Shader> lineShader;
+
+        // store window info
         int windowXPos;
         int windowYPos;
         int windowWidth;
         int windowHeight;
 
-        Camera camera;
-        GLFWwindow* window;
-
-        std::vector<const char*> saveNames;
-        std::vector<Object> objects;
-        std::vector<Shader> shaders;
-
-        int anitAiliasingSamples = DEFAULT_MSAA_SAMPLES;
+        // window settings
+        int antiAiliasingSamples = DEFAULT_MSAA_SAMPLES;
         int segmentCount = DEFAULT_SEGMENT_COUNT;
-
         float FOV = DEFAULT_FOV;
         float nearPlaneDist = 0.1f;
         float farPlaneDist = DEFAULT_RENDER_DISTANCE;
-    
-        double simRate = DEFAULT_SIM_RATE;
-        double simTime = 0.0;
-        double deltaTime = DEFAULT_DELTA_T;
-        double frameTime = 0.0;
-        double runTime = 0.0;
-
+        
+        // boolean variables
         bool fullscreen = false;
         bool multisample = true;
         bool wireframeMode = false;
@@ -80,77 +83,104 @@ class Window
         bool displayFPS = false;
         bool displaySimInfo = false;
         bool displayControls = true;
-        bool displayLaunch = false;
+        bool displaySatellites = true;
         bool paused = false;
 
-        std::unique_ptr<Shader> lightShader;
-        std::unique_ptr<Shader> shaderProgram;
-        std::unique_ptr<Shader> lineShader;
+        // physics variables
+        double accumulator;
+        double deltaTime = DEFAULT_DELTA_T;
 
+        // sim variables
+        double runTime = 0.0;
+        double simTime = 0.0;
+        double simRate = DEFAULT_SIM_RATE;
+
+        // fps tracker variables
+        double fpsPrevDisplayTime;
+        double fpsCrntDisplayTime;
+        double frameTime = 0.0;
+        double currentFPS = 0.0;
+        double averageFPS = 0.0;
+        double minFps = -1.0;
+        std::vector<double> fpsTrack;
+
+        // objects for lazy initialization
         std::unique_ptr<Light> sun;
         std::unique_ptr<Sphere> planet; 
         std::unique_ptr<OrbitLine> orbit1;
 
-        std::unique_ptr<Satellite> sat1;
-        std::unique_ptr<Sphere> sat1Object;
-
-        std::vector<double> fpsTrack;
-        double currentFPS = 0.0;
-        double averageFPS = 0.0;
-        double minFps = -1.0;
-
+        // vector containing ui windows for launching satellites
         std::vector<LaunchUI> launchUiWindows;
 
+        // satellites
+        std::vector<Satellite> satellites;
+
+        // imgui IO pointer
         ImGuiIO* io = nullptr;
 
-        Window
-        (
-            const char* title,
-            int width,
-            int height,
-            int xPos,
-            int yPos
-        );
+        // constructor
+        Window(const char* title, int width, int height, int xPos, int yPos);
 
+        // Window Setup / Shutdown
         void Initialize();
         void Terminate();
 
+        // GLFW Callbacks
+        static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+        static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+
+        // Input Management
         void ResizeWindow(int width, int height);
         void KeyInput(int key, int scancode, int action, int mods);
         void ScrollInput(double xOffset, double yOffset);
 
-        void OpenSaveFiles();
-        void LoadSaveFile(const char* filename);
-        void SaveSaveFile();
-
-        void AddObject(ObjectType type);
+        // Object Management
+        void AddObject();
         void UpdateObjects();
-        void DrawObjects();
         void DeleteObject();
 
-        void AddShader(const char* vertexFile, const char* fragmentFile);
-        void DeleteShader();
+        // Satellites
+        void AddSatellites(const char* name, float mass, float longitude, float latitude, float azimuth, float altitude, float velocity, float distance, float FPA, float radius, float color[3]);
+        void UpdateSatellites();
+        void DeleteSatellites(const char* name);
+        void TerminateDeletedSatellites();
 
-        void DrawUI();
+        // Draw Calls
+        void Draw();
+        void DrawObjects();
+        void DrawSatellites();
 
+        // UI
+        void DisplayUI(); // draws User Interface to screen
+        void DisplayMainMenu();
+        void DisplayControlsUI();
+        void DisplaySimInfoUI();
+        void DisplayFPSUI();
+        void DisplayLaunchUI();
+        void DisplaySatellitesUI();
+        
+        // FPS Tracker
+        void UpdateFPS(); // updates the fps counter every frame
+
+        // Main Render Loop
+        void RenderLoop(); // Main render loop, core of the render
+
+        // Settings Management
         void EnableWireframeMode();
         void DisableWireframeMode();
-
         void EnableFaceCulling();
         void DisableFaceCulling();
-
         void IncreaseSimRate();
         void DecreaseSimRate();
         void ResetSimRate();
-
         void Pause();
         void Resume();
 
-        void RenderLoop();
-
-        static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-        static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-        static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+        // TODO: Implement Later
+        void OpenSaveFiles();
+        void LoadSaveFile(const char* filename);
+        void SaveSaveFile();
 };
 
 #endif

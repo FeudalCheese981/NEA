@@ -14,10 +14,6 @@ class OrbitLine: public Object
         float orbitArgumentOfPeriapsis;
         float orbitLongitudeOfAscendingNode;
 
-        float orbitApoapsis;
-        float orbitPeriapsis;
-        float orbitTrueAnomoly;
-
         OrbitLine
         (
             int lineSegments,

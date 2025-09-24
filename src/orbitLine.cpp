@@ -23,8 +23,6 @@ Object(color, pos, drawType)
     orbitInclination = inclination;
     orbitArgumentOfPeriapsis = argumentOfPeriapsis;
     orbitLongitudeOfAscendingNode = longitudeOfAscendingNode;
-    orbitApoapsis = semiMajorAxis * (1 - eccentricity);
-    orbitPeriapsis = semiMajorAxis * (1 * eccentricity);
     GenerateVertices();
     GenerateIndices();
     Update();

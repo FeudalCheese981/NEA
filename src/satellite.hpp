@@ -3,6 +3,10 @@
 
 #include <cmath>
 #include <string>
+#include <memory>
+
+#include "orbitLine.hpp"
+#include "sphere.hpp"
 
 const float G = 6.67e-11f;
 
@@ -11,7 +15,9 @@ float wrapTwoPi(float angleRadians);
 class Satellite
 {
     public:
-        const char* satelliteName;
+        bool isAlive = true;
+
+        std::string satelliteName;
         float satelliteMass;
         float satelliteParentMass;
         float satelliteParentRadius;
@@ -38,6 +44,7 @@ class Satellite
         // satellite position, velocity and fpa
         float satelliteTrueAnomaly;
         float satelliteDistance;
+        float satelliteAltitude;
         float satelliteVelocity;
         float satelliteFlightPathAngle;
 
@@ -45,13 +52,17 @@ class Satellite
         float satelliteYPos;
         float satelliteZPos;
         
+        Sphere satelliteObject;
+        OrbitLine satelliteOrbit;
 
         Satellite
         (
             const char* name,
             float mass,
             float parentMass,
-            float parentRadius
+            float parentRadius,
+            float radius,
+            glm::vec4 lineColor
         );
 
         void CalculateOrbitalParameters
@@ -67,6 +78,7 @@ class Satellite
         );
         
         void UpdatePosition(float time);
+        void Draw(Shader& lineShader, Shader& objectShader, Camera& Camera);
 };
 
 #endif

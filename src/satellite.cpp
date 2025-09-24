@@ -2,7 +2,6 @@
 #include <cmath>
 
 #include "satellite.hpp"
-
 #include <iostream>
 
 float wrapTwoPi(float angleRadians)
@@ -14,13 +13,9 @@ float wrapTwoPi(float angleRadians)
     return newAngle;
 }
 
-Satellite::Satellite
-(
-    const char* name,
-    float mass,
-    float parentMass,
-    float parentRadius
-)
+Satellite::Satellite(const char* name, float mass, float parentMass, float parentRadius, float radius, glm::vec4 lineColor)
+: satelliteObject(radius, 1024, 512, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), SPHERE_COLOR_DEFAULT),
+satelliteOrbit(1024, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, lineColor, glm::vec3(0.0f, 0.0f, 0.0f), GL_LINE_STRIP)
 {
     satelliteName = name;
     satelliteMass = mass;
@@ -99,6 +94,17 @@ void Satellite::CalculateOrbitalParameters
 
     float deltaLongitude = atan2(sin(latitude) * sin(azimuth), cos(azimuth));
     satelliteLongitudeOfAscendingNode = longitude - deltaLongitude;
+
+    satelliteOrbit.orbitEccentricity = satelliteEccentricity;
+    satelliteOrbit.orbitSemiMajorAxis = satelliteSemiMajorAxis / 6.37e6f;
+    satelliteOrbit.orbitInclination = satelliteInclination;
+    satelliteOrbit.orbitArgumentOfPeriapsis = satelliteArgumentOfPeriapsis;
+    satelliteOrbit.orbitLongitudeOfAscendingNode = satelliteLongitudeOfAscendingNode;
+
+    satelliteOrbit.GenerateVertices();
+    satelliteOrbit.GenerateIndices();
+    satelliteOrbit.Update();
+    satelliteOrbit.Place();
 }
 
 void Satellite::UpdatePosition(float time)
@@ -132,6 +138,7 @@ void Satellite::UpdatePosition(float time)
 
     // update distance, velocity and flight path angle
     satelliteDistance = (satelliteSemiMajorAxis * (1 - (satelliteEccentricity * satelliteEccentricity))) / (1 + satelliteEccentricity * cos(satelliteTrueAnomaly));
+    satelliteAltitude = satelliteDistance - satelliteParentRadius;
     satelliteVelocity = sqrt(mu * ((2.0f / satelliteDistance) - (1.0f / satelliteSemiMajorAxis)));
     satelliteFlightPathAngle = atan((satelliteEccentricity * sin(satelliteTrueAnomaly)) / (1 + satelliteEccentricity * cos(satelliteTrueAnomaly)));
     
@@ -160,4 +167,13 @@ void Satellite::UpdatePosition(float time)
     satelliteXPos = x;
     satelliteYPos = y;
     satelliteZPos = z;
+
+    satelliteObject.objectPos = glm::vec3(satelliteXPos / 6.37e6f, satelliteYPos / 6.37e6f, satelliteZPos / 6.37e6f);
+    satelliteObject.Place();
+}
+
+void Satellite::Draw(Shader& lineShader, Shader& objectShader, Camera& camera)
+{
+    satelliteOrbit.Draw(lineShader, camera, 3.0f);
+    satelliteObject.Draw(objectShader, camera);
 }
