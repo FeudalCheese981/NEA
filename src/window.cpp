@@ -505,8 +505,8 @@ void Window::DisplaySatellitesUI()
                 ImGui::Text("Velocity %.2fm/s", satellite.satelliteVelocity);
                 
             }
-            ImGui::End();
         }
+        ImGui::End();
     }
 }
 
